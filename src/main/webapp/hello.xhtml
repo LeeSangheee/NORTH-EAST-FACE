@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<f:view>
+    <h:head>
+        <title>About Us - NORTH EAST FACE®</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Helvetica Neue', Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                padding-top: 80px;
+                background: #f8f8f8;
+            }
+            
+            .header {
+                background: #000;
+                color: white;
+                padding: 1rem 0;
+                position: fixed;
+                width: 100%;
+                top: 0;
+                z-index: 1000;
+            }
+            
+            .nav-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 2rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+                font-weight: bold;
+                text-decoration: none;
+                color: white;
+            }
+            
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 2rem;
+                background: white;
+                margin-top: 2rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            
+            .page-title {
+                text-align: center;
+                font-size: 2.5rem;
+                margin-bottom: 2rem;
+                font-weight: 300;
+            }
+            
+            .back-link {
+                display: inline-block;
+                margin-bottom: 2rem;
+                color: #000;
+                text-decoration: none;
+                font-weight: bold;
+            }
+            
+            .back-link:hover {
+                text-decoration: underline;
+            }
+            
+            .form-container {
+                background: #f8f8f8;
+                padding: 2rem;
+                border-radius: 8px;
+                margin: 2rem 0;
+            }
+            
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+            
+            label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: bold;
+                color: #333;
+            }
+            
+            input[type="text"] {
+                width: 100%;
+                padding: 1rem;
+                border: 2px solid #ddd;
+                border-radius: 4px;
+                font-size: 1rem;
+                transition: border-color 0.3s;
+            }
+            
+            input[type="text"]:focus {
+                outline: none;
+                border-color: #000;
+            }
+            
+            input[type="submit"] {
+                background: #000;
+                color: white;
+                border: none;
+                padding: 1rem 2rem;
+                font-size: 1rem;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                cursor: pointer;
+                border-radius: 4px;
+                transition: background 0.3s;
+            }
+            
+            input[type="submit"]:hover {
+                background: #333;
+            }
+            
+            .message {
+                margin-top: 1rem;
+                padding: 1rem;
+                background: #e8f5e8;
+                border-left: 4px solid #28a745;
+                border-radius: 4px;
+                font-size: 1.1rem;
+                font-weight: bold;
+            }
+            
+            .error-message {
+                color: #dc3545;
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+            }
+            
+            .about-content {
+                line-height: 1.8;
+                font-size: 1.1rem;
+            }
+            
+            .about-content h3 {
+                margin: 2rem 0 1rem 0;
+                color: #000;
+            }
+            
+            .highlight {
+                background: #000;
+                color: white;
+                padding: 0.2rem 0.5rem;
+                border-radius: 3px;
+                font-weight: bold;
+            }
+        </style>
+    </h:head>
+    <h:body>
+        <header class="header">
+            <div class="nav-container">
+                <a href="index.xhtml" class="logo">NORTH EAST FACE®</a>
+            </div>
+        </header>
+
+        <div class="container">
+            <a href="index.xhtml" class="back-link">← 홈으로 돌아가기</a>
+            
+            <h1 class="page-title">About NORTH EAST FACE</h1>
+            
+            <div class="about-content">
+                <p>1966년 샌프란시스코의 작은 상점에서 시작된 이야기에서 영감을 받아, 
+                <span class="highlight">NORTH EAST FACE</span>는 개발자들을 위한 브랜드로 탄생했습니다.</p>
+                
+                <h3>우리의 철학</h3>
+                <p>산의 가장 추운 면인 북쪽 면처럼, 코딩의 가장 어려운 면인 <strong>동쪽 북쪽 면</strong>에서 
+                영감을 받았습니다. 디버깅의 어려움, 배포의 험난함, 새벽 코딩의 추위를 이겨낼 수 있는 
+                장비를 만드는 것이 우리의 사명입니다.</p>
+                
+                <h3>Never Stop Coding</h3>
+                <p>60년간의 혁신 정신을 이어받아, 우리는 가장 혹독한 개발 환경에서도 견딜 수 있는 
+                장비를 만들어왔습니다. 24시간 해커톤부터 극한의 크런치 타임까지, 
+                개발자들과 함께 모든 도전을 극복해나갑니다.</p>
+            </div>
+            
+            <div class="form-container">
+                <h3>개발자 등록</h3>
+                <p>NORTH EAST FACE 커뮤니티에 참여하세요!</p>
+                
+                <h:form prependId="false">
+                    <div class="form-group">
+                        <label jsf:for="name" jsf:required="true">개발자 이름:</label>
+                        <input type="text"
+                               jsf:id="name"
+                               jsf:value="#{hello.name}"
+                               jsf:required="true"
+                               jsf:requiredMessage="개발자 이름을 입력해주세요."
+                               placeholder="당신의 개발자 이름을 입력하세요..."
+                        />
+                        <h:message for="name" styleClass="error-message"/>
+                    </div>
+                    
+                    <input type="submit" jsf:id="submit" value="커뮤니티 가입" jsf:action="#{hello.createMessage()}">
+                        <f:ajax execute="@form" render="@form"/>
+                    </input>
+                    
+                    <div id="message" class="message" style="#{empty hello.message ? 'display:none' : ''}">
+                        #{hello.message}
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </h:body>
+</f:view>
+</html>

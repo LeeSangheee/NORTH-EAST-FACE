@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<h:head>
+    <title>NORTH EAST FACE® - Never Stop Coding</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Header */
+        .header {
+            background: #000;
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+        
+        .nav-menu a:hover {
+            color: #ccc;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23333" width="1200" height="800"/><polygon fill="%23555" points="0,800 400,200 800,600 1200,100 1200,800"/><text x="600" y="400" text-anchor="middle" fill="%23777" font-size="120" font-family="Arial">⛰️</text></svg>');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+        
+        .hero-content h1 {
+            font-size: 4rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: #fff;
+            color: #000;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            border: 2px solid #fff;
+        }
+        
+        .cta-button:hover {
+            background: transparent;
+            color: #fff;
+        }
+        
+        /* Product Categories */
+        .categories {
+            padding: 4rem 0;
+            background: #f8f8f8;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-image {
+            height: 200px;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        .category-content {
+            padding: 1.5rem;
+        }
+        
+        .category-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-content p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .category-link {
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #000;
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-section ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-section ul li a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #333;
+            padding-top: 1rem;
+            text-align: center;
+            color: #666;
+        }
+        
+        .hashtag {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-content p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</h:head>
+<h:body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="#" class="logo">NORTH EAST FACE®</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#coding">Coding Gear</a></li>
+                    <li><a href="#debugging">Debug Tools</a></li>
+                    <li><a href="#deployment">Deploy Kit</a></li>
+                    <li><a href="#community">Community</a></li>
+                    <li><a href="hello.xhtml">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>NEVER STOP CODING</h1>
+            <p>코딩의 가장 험난한 면 - 동쪽 북쪽 면에서 영감을 받아 만든 개발자를 위한 최고의 도구들</p>
+            <a href="#categories" class="cta-button">Explore Gear</a>
+        </div>
+    </section>
+
+    <!-- Product Categories -->
+    <section id="categories" class="categories">
+        <div class="container">
+            <h2 class="section-title">코딩 장비 컬렉션</h2>
+            <div class="category-grid">
+                <div class="category-card">
+                    <div class="category-image">💻</div>
+                    <div class="category-content">
+                        <h3>IDE 자켓</h3>
+                        <p>추운 사무실에서도 따뜻하게 코딩할 수 있는 프리미엄 개발자 자켓</p>
+                        <a href="products.xhtml" class="category-link">Shop IDE Jackets →</a>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-image">🎒</div>
+                    <div class="category-content">
+                        <h3>백팩 스토리지</h3>
+                        <p>노트북, 태블릿, 케이블을 안전하게 보관하는 개발자 전용 백팩</p>
+                        <a href="products.xhtml" class="category-link">Shop Backpacks →</a>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-image">☕</div>
+                    <div class="category-content">
+                        <h3>카페인 기어</h3>
+                        <p>24시간 코딩을 위한 프리미엄 커피 장비와 에너지 드링크</p>
+                        <a href="products.xhtml" class="category-link">Shop Caffeine →</a>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-image">🧢</div>
+                    <div class="category-content">
+                        <h3>디버깅 모자</h3>
+                        <p>집중력을 높여주는 개발자 전용 모자 컬렉션</p>
+                        <a href="hello-pages.jspx" class="category-link">Shop Debug Caps →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="#">IDE 자켓</a></li>
+                        <li><a href="#">백팩 스토리지</a></li>
+                        <li><a href="#">카페인 기어</a></li>
+                        <li><a href="#">디버깅 모자</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">사이즈 가이드</a></li>
+                        <li><a href="#">배송 정보</a></li>
+                        <li><a href="#">반품/교환</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About NORTH EAST FACE</a></li>
+                        <li><a href="#">개발자 채용</a></li>
+                        <li><a href="#">지속가능성</a></li>
+                        <li><a href="#">뉴스</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="#">GitHub</a></li>
+                        <li><a href="#">Stack Overflow</a></li>
+                        <li><a href="#">Discord</a></li>
+                        <li><a href="#">개발자 블로그</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="hashtag">#NeverStopCoding</p>
+                <p>우리는 코드 속에서 우리의 장비를 보는 것을 좋아합니다. #neverstopCoding 해시태그와 함께 사진을 공유하고 @northeastface를 태그하세요.</p>
+                <p>© 2026 NORTH EAST FACE. 모든 권리 보유. | Jakarta EE 9 기반</p>
+            </div>
+        </div>
+    </footer>
+</h:body>
+</html>

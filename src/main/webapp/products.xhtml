@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<h:head>
+    <title>Products - NORTH EAST FACE®</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding-top: 80px;
+        }
+        
+        .header {
+            background: #000;
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-image {
+            height: 250px;
+            background: linear-gradient(45deg, #333, #666);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+        
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 1rem;
+        }
+        
+        .product-features {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+        
+        .product-features li {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+        
+        .product-features li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .buy-button {
+            width: 100%;
+            background: #000;
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .buy-button:hover {
+            background: #333;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</h:head>
+<h:body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.xhtml" class="logo">NORTH EAST FACE®</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="index.xhtml" class="back-link">← 홈으로 돌아가기</a>
+        
+        <h1 class="page-title">개발자 전용 장비</h1>
+        
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-image">🧥</div>
+                <div class="product-info">
+                    <h3 class="product-name">IDE 울트라 자켓</h3>
+                    <p class="product-description">극한의 추위에서도 코딩할 수 있도록 설계된 프리미엄 개발자 자켓</p>
+                    <div class="product-price">₩299,000</div>
+                    <ul class="product-features">
+                        <li>방수 및 방풍 기능</li>
+                        <li>노트북 전용 내부 포켓</li>
+                        <li>케이블 정리 시스템</li>
+                        <li>USB 충전 포트</li>
+                    </ul>
+                    <a href="product-detail.xhtml" class="buy-button" style="text-decoration: none; color: white; display: block; text-align: center;">상세보기</a>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image">🎒</div>
+                <div class="product-info">
+                    <h3 class="product-name">코드 베이스캠프 백팩</h3>
+                    <p class="product-description">모든 개발 장비를 안전하게 보관할 수 있는 대용량 백팩</p>
+                    <div class="product-price">₩189,000</div>
+                    <ul class="product-features">
+                        <li>17인치 노트북 수납 가능</li>
+                        <li>태블릿 전용 구획</li>
+                        <li>케이블 정리함</li>
+                        <li>도난 방지 지퍼</li>
+                    </ul>
+                    <a href="backpack-detail.xhtml" class="buy-button" style="text-decoration: none; color: white; display: block; text-align: center;">상세보기</a>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image">☕</div>
+                <div class="product-info">
+                    <h3 class="product-name">카페인 서바이벌 키트</h3>
+                    <p class="product-description">24시간 코딩을 위한 프리미엄 커피 장비 세트</p>
+                    <div class="product-price">₩149,000</div>
+                    <ul class="product-features">
+                        <li>휴대용 에스프레소 머신</li>
+                        <li>보온 텀블러 (500ml)</li>
+                        <li>프리미엄 원두 3종</li>
+                        <li>에너지 바 12개</li>
+                    </ul>
+                    <button class="buy-button">장바구니 담기</button>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image">🧢</div>
+                <div class="product-info">
+                    <h3 class="product-name">디버깅 포커스 캡</h3>
+                    <p class="product-description">집중력을 극대화하는 개발자 전용 모자</p>
+                    <div class="product-price">₩79,000</div>
+                    <ul class="product-features">
+                        <li>블루라이트 차단 챙</li>
+                        <li>소음 차단 이어플랩</li>
+                        <li>통풍 시스템</li>
+                        <li>조절 가능한 사이즈</li>
+                    </ul>
+                    <button class="buy-button">장바구니 담기</button>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image">⌨️</div>
+                <div class="product-info">
+                    <h3 class="product-name">익스트림 코딩 키보드</h3>
+                    <p class="product-description">극한 상황에서도 완벽한 타이핑을 보장하는 기계식 키보드</p>
+                    <div class="product-price">₹259,000</div>
+                    <ul class="product-features">
+                        <li>방수 및 먼지 차단</li>
+                        <li>RGB 백라이트</li>
+                        <li>매크로 키 12개</li>
+                        <li>무선/유선 겸용</li>
+                    </ul>
+                    <button class="buy-button">장바구니 담기</button>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image">🖱️</div>
+                <div class="product-info">
+                    <h3 class="product-name">프리시전 코딩 마우스</h3>
+                    <p class="product-description">정밀한 코드 선택과 디버깅을 위한 고성능 마우스</p>
+                    <div class="product-price">₩129,000</div>
+                    <ul class="product-features">
+                        <li>25,600 DPI 센서</li>
+                        <li>프로그래밍 가능한 버튼 12개</li>
+                        <li>무선 충전 지원</li>
+                        <li>인체공학적 디자인</li>
+                    </ul>
+                    <button class="buy-button">장바구니 담기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</h:body>
+</html>
