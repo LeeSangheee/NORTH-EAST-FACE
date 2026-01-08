@@ -40,6 +40,36 @@
     .wishlist { width: 64px; min-width: 64px; height: 56px; background: #fff; border-left: 1px solid #111; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .wishlist span { font-size: 18px; }
 
+    /* Add-to-cart modal */
+    .cart-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1200; }
+    .cart-modal.is-open { display: flex; }
+    .cart-modal .backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+    .cart-modal .sheet { position: relative; background: #fff; width: min(380px, 92vw); border-radius: 10px; overflow: hidden; box-shadow: 0 18px 38px rgba(0,0,0,0.28); border: 1px solid rgba(0,0,0,0.06); text-align: center; }
+    .cart-modal .body { padding: 30px 26px 18px; display: grid; gap: 10px; color: #222; font-size: 14px; justify-items: center; }
+    .cart-modal .icon { font-size: 36px; color: #888; margin-bottom: 4px; }
+    .cart-modal .actions { display: grid; grid-template-columns: 1fr 1fr; }
+    .cart-modal .btn { border-radius: 0; height: 48px; font-size: 14px; font-weight: 800; padding: 0; display: flex; align-items: center; justify-content: center; }
+    .cart-modal .btn.cart-link { background: #f8f8f8; color: #111; border: 1px solid #ddd; }
+    .cart-modal .btn.close { background: #111; color: #fff; border: 1px solid #111; }
+
+    /* Login-required modal */
+    .login-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1300; }
+    .login-modal.is-open { display: flex; }
+    .login-modal .backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+    .login-modal .sheet { position: relative; background: #fff; width: min(360px, 92vw); border-radius: 10px; box-shadow: 0 18px 38px rgba(0,0,0,0.28); overflow: hidden; border: 1px solid rgba(0,0,0,0.06); }
+    .login-modal .close { position: absolute; right: 14px; top: 14px; border: none; background: none; font-size: 18px; cursor: pointer; color: #555; }
+    .login-modal .head { padding: 22px 20px 12px; border-bottom: 1px solid #eee; font-size: 18px; font-weight: 800; }
+    .login-modal .body { padding: 14px 20px 10px; font-size: 13px; color: #444; line-height: 1.55; }
+    .login-modal .benefits { padding: 14px 16px; margin: 0 16px 14px; border: 1px solid #eee; border-radius: 6px; background: #fafafa; display: grid; gap: 10px; font-size: 12px; color: #444; }
+    .login-modal .benefit { display: flex; gap: 10px; align-items: flex-start; }
+    .login-modal .benefit-icon { font-size: 18px; }
+    .login-modal .actions { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #eee; }
+    .login-modal .btn { border-radius: 0; height: 46px; font-size: 14px; font-weight: 800; padding: 0; }
+    .login-modal .btn.join { background: #fff; color: #111; border: 1px solid #ddd; border-right: 1px solid #eee; }
+    .login-modal .btn.login { background: #111; color: #fff; border: 1px solid #111; }
+    .login-modal .footer { text-align: center; padding: 12px; font-size: 12px; color: #666; border-top: 1px solid #eee; }
+    .login-modal .footer a { color: #111; text-decoration: underline; }
+
     @media (max-width: 920px) {
       .detail { grid-template-columns: 1fr; }
       .left { position: static; }
@@ -137,6 +167,7 @@
 
     // ---- Cart via localStorage ----
     const CART_KEY = 'nef_cart';
+    const IS_LOGGED_IN = <%= (request.getSession(false) != null && request.getSession(false).getAttribute("user") != null) ? "true" : "false" %>;
 
     function readCart() {
       try {
@@ -154,6 +185,86 @@
       } catch (e) {
         console.warn('Cart write error', e);
       }
+    }
+
+    // Modal helpers
+    const CART_URL = '${pageContext.request.contextPath}/cart';
+    function ensureCartModal() {
+      let modal = document.getElementById('cartModal');
+      if (modal) return modal;
+      modal = document.createElement('div');
+      modal.id = 'cartModal';
+      modal.className = 'cart-modal';
+      modal.innerHTML = '' +
+        '<div class="backdrop" data-close="1"></div>' +
+        '<div class="sheet" role="dialog" aria-modal="true" aria-label="장바구니 알림">' +
+          '<div class="body">' +
+            '<div class="icon">🛒</div>' +
+            '<div>선택하신 상품을<br/>장바구니에 담았습니다.</div>' +
+          '</div>' +
+          '<div class="actions">' +
+            '<a class="btn cart-link" href="' + CART_URL + '">장바구니 바로가기</a>' +
+            '<button class="btn close" type="button" data-close="1">계속 쇼핑하기</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(modal);
+      modal.addEventListener('click', (e) => {
+        if (e.target.dataset.close) hideCartModal();
+      });
+      return modal;
+    }
+
+    function showCartModal() {
+      const modal = ensureCartModal();
+      modal.classList.add('is-open');
+    }
+
+    function hideCartModal() {
+      const modal = document.getElementById('cartModal');
+      if (modal) modal.classList.remove('is-open');
+    }
+
+    // Login modal helpers
+    const LOGIN_URL = '${pageContext.request.contextPath}/login';
+    const JOIN_URL = '${pageContext.request.contextPath}/register';
+    function ensureLoginModal() {
+      let modal = document.getElementById('loginModal');
+      if (modal) return modal;
+      modal = document.createElement('div');
+      modal.id = 'loginModal';
+      modal.className = 'login-modal';
+      modal.innerHTML = '' +
+        '<div class="backdrop" data-close="1"></div>' +
+        '<div class="sheet" role="dialog" aria-modal="true" aria-label="회원 혜택 안내">' +
+          '<button class="close" type="button" data-close="1">×</button>' +
+          '<div class="head">노스페이스 회원 혜택</div>' +
+          '<div class="body">회원가입 후 구매하시면 더 많은 혜택을 받을 수 있습니다.</div>' +
+          '<div class="benefits">' +
+            '<div class="benefit"><span class="benefit-icon">💳</span><div>회원 구매 시 5% 적립<br/>공식몰 멤버십 전용 3% 메리트 적립</div></div>' +
+            '<div class="benefit"><span class="benefit-icon">🎂</span><div>생일 축하 할인쿠폰 지급<br/>회원 등급에 따라 생일 할인 쿠폰 지급</div></div>' +
+            '<div class="benefit"><span class="benefit-icon">📝</span><div>리뷰 리워드 혜택 제공<br/>상품 리뷰 작성 시 메리트 적립 혜택</div></div>' +
+          '</div>' +
+          '<div class="actions">' +
+            '<a class="btn join" href="' + JOIN_URL + '">회원가입</a>' +
+            '<a class="btn login" href="' + LOGIN_URL + '">로그인</a>' +
+          '</div>' +
+          '<div class="footer"><a href="#" data-close="1">비회원으로 구매하기</a></div>' +
+        '</div>';
+      document.body.appendChild(modal);
+      modal.addEventListener('click', (e) => {
+        if (e.target.dataset.close) hideLoginModal();
+      });
+      return modal;
+    }
+
+    function showLoginModal() {
+      const modal = ensureLoginModal();
+      modal.classList.add('is-open');
+    }
+
+    function hideLoginModal() {
+      const modal = document.getElementById('loginModal');
+      if (modal) modal.classList.remove('is-open');
     }
 
     function showToast(text) {
@@ -208,6 +319,7 @@
       writeCart(cart);
       showToast('장바구니에 담았어요');
       if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
+      showCartModal();
     }
 
     // Bind Cart and Buy buttons
@@ -229,6 +341,10 @@
     });
 
     buyBtn?.addEventListener('click', () => {
+      if (!IS_LOGGED_IN) {
+        showLoginModal();
+        return;
+      }
       const payload = {
         id: String(productId),
         name: data.name,
