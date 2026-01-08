@@ -134,6 +134,114 @@
       });
       $sizes.appendChild(b);
     });
+
+    // ---- Cart via localStorage ----
+    const CART_KEY = 'nef_cart';
+
+    function readCart() {
+      try {
+        const raw = localStorage.getItem(CART_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        console.warn('Cart read error', e);
+        return [];
+      }
+    }
+
+    function writeCart(cart) {
+      try {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      } catch (e) {
+        console.warn('Cart write error', e);
+      }
+    }
+
+    function showToast(text) {
+      let t = document.getElementById('toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'toast';
+        t.style.position = 'fixed';
+        t.style.left = '50%';
+        t.style.bottom = '24px';
+        t.style.transform = 'translateX(-50%)';
+        t.style.background = '#111';
+        t.style.color = '#fff';
+        t.style.padding = '12px 16px';
+        t.style.borderRadius = '6px';
+        t.style.boxShadow = '0 6px 18px rgba(0,0,0,0.25)';
+        t.style.zIndex = '9999';
+        document.body.appendChild(t);
+      }
+      t.textContent = text;
+      t.style.opacity = '1';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.style.opacity = '0'; }, 1600);
+    }
+
+    function getActiveColor() {
+      const el = document.querySelector('.color.is-active');
+      // return background color value (hex or rgb)
+      return el ? (el.style.background || '#000') : '#000';
+    }
+
+    function getActiveSize() {
+      const el = document.querySelector('.size.is-active');
+      return el ? el.textContent : '';
+    }
+
+    function parsePriceToNumber(text) {
+      const n = parseInt(String(text).replace(/[^0-9]/g, ''), 10);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function addToCart(item) {
+      const cart = readCart();
+      const key = (p) => [p.id, p.color, p.size].join('|');
+      const targetKey = key(item);
+      const found = cart.find(p => key(p) === targetKey);
+      if (found) {
+        found.qty += item.qty;
+      } else {
+        cart.push(item);
+      }
+      writeCart(cart);
+      showToast('장바구니에 담았어요');
+      if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
+    }
+
+    // Bind Cart and Buy buttons
+    const cartBtn = document.querySelector('.cart-main');
+    const buyBtn = document.querySelector('.btn.buy');
+
+    cartBtn?.addEventListener('click', () => {
+      const payload = {
+        id: String(productId),
+        name: data.name,
+        emoji: data.emoji,
+        price: parsePriceToNumber(data.price),
+        priceText: data.price,
+        color: getActiveColor(),
+        size: getActiveSize(),
+        qty: 1
+      };
+      addToCart(payload);
+    });
+
+    buyBtn?.addEventListener('click', () => {
+      const payload = {
+        id: String(productId),
+        name: data.name,
+        emoji: data.emoji,
+        price: parsePriceToNumber(data.price),
+        priceText: data.price,
+        color: getActiveColor(),
+        size: getActiveSize(),
+        qty: 1
+      };
+      addToCart(payload);
+      showToast('바로구매 준비중 (데모): 장바구니에 담음');
+    });
   </script>
 </body>
 </html>

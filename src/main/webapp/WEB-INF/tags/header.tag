@@ -15,6 +15,8 @@
     .search-box { display: flex; align-items: center; gap: 8px; border: 1px solid #d0d0d0; border-radius: 8px; padding: 8px 10px; min-width: 200px; }
     .search-box input { border: none; outline: none; font-size: 14px; width: 100%; }
     .search-box .search-icon { font-size: 18px; color: #333; }
+        .cart-link { position: relative; }
+        .cart-badge { position: absolute; top: -4px; right: -6px; background: #111; color: #fff; border-radius: 999px; min-width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; padding: 0 5px; border: 2px solid #fff; }
 </style>
 <header class="global-header">
     <div class="header-inner">
@@ -38,9 +40,30 @@
                 <input type="text" placeholder="눕시가이드" aria-label="Search"/>
                 <span class="search-icon">🔍</span>
             </div>
-            <a class="icon-button" href="${pageContext.request.contextPath}/products" aria-label="Cart">🛒</a>
+                                <a class="icon-button cart-link" href="${pageContext.request.contextPath}/cart" aria-label="Cart">🛒<span id="cartCount" class="cart-badge" style="display:none">0</span></a>
             <a class="icon-button" href="${pageContext.request.contextPath}/hello" aria-label="Account">👤</a>
             <a class="icon-button" href="${pageContext.request.contextPath}/login" aria-label="Login">↪</a>
         </div>
     </div>
 </header>
+<script>
+    (function(){
+        var KEY = 'nef_cart';
+        var badge = document.getElementById('cartCount');
+        function countItems(){
+            try {
+                var raw = localStorage.getItem(KEY);
+                var list = raw ? JSON.parse(raw) : [];
+                var total = Array.isArray(list) ? list.reduce(function(sum, it){ return sum + (it.qty || 0); }, 0) : 0;
+                if (!badge) return;
+                badge.textContent = String(total);
+                badge.style.display = total > 0 ? 'inline-flex' : 'none';
+            } catch(e) {
+                // ignore
+            }
+        }
+        window.nefUpdateCartBadge = countItems;
+        window.addEventListener('storage', function(ev){ if (ev.key === KEY) countItems(); });
+        countItems();
+    })();
+</script>
