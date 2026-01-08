@@ -22,6 +22,12 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
+    <!-- Enable default servlet for static resources -->
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/static/*</url-pattern>
+    </servlet-mapping>
+
     <!-- Force UTF-8 for all requests/responses -->
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>

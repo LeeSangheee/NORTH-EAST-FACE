@@ -42,7 +42,7 @@
         <div class="content">
             <div class="image">🎒</div>
             <div class="details">
-                <div class="breadcrumb"><a href="index.jsp">Home</a> / <a href="products.jsp">Shop</a> / Backpack</div>
+                <div class="breadcrumb"><a href="/">Home</a> / <a href="/products">Shop</a> / Backpack</div>
                 <span class="badge">BEST</span>
                 <h2>코드 베이스캠프 백팩</h2>
                 <div class="price">₩ 420,000</div>
@@ -53,7 +53,7 @@
                     <li>• 장시간 빌드 대기용 패딩 스트랩</li>
                     <li>• 배터리 뱅크 전용 케이블 채널</li>
                 </ul>
-                <a class="cta" href="products.jsp">Back to Shop</a>
+                <a class="cta" href="/products">Back to Shop</a>
             </div>
         </div>
     </div>

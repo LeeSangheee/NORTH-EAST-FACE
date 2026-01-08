@@ -34,6 +34,12 @@
         .products-track-container { overflow: hidden; width: 100%; }
         .products-track { display: flex; gap: 20px; will-change: transform; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: grab; }
         .products-track:active { cursor: grabbing; }
+        /* Ensure anchor wrapper doesn't add link styling */
+        .products-track a { text-decoration: none; color: inherit; display: block; }
+        /* Keep original card width by sizing the flex item (anchor) */
+        .products-track .product-link { flex: 0 0 280px; }
+        /* Make inner card fill the anchor width */
+        .product-card { width: 100%; }
         .product-card { flex: 0 0 280px; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
         .product-card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
         .product-image { width: 100%; height: 280px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 6rem; position: relative; }
@@ -177,15 +183,18 @@
                 return;
             }
 
+            // Context path for building servlet URLs
+            var CP = '${pageContext.request.contextPath}';
+
             const products = [
-                { name: "M'S OBIR HYBRID DOWN COAT", emoji: '🧥', discount: 40, price: '314,100 원', badge: 'new' },
-                { name: "M'S HIMALAYAN PARKA (RDS)", emoji: '🧥', price: '950,000 원' },
-                { name: "W'S EVERLOFT DOWN COAT (RDS)", emoji: '🧥', discount: 20, price: '318,400 원', badge: 'sale' },
-                { name: "W'S 2000 NUPTSE JACKET", emoji: '🧥', discount: 20, price: '319,200 원', badge: 'sale' },
-                { name: 'BOREALIS BOOTIE', emoji: '🥾', discount: 20, price: '135,200 원', badge: 'sale' },
-                { name: 'BOREALIS CLASSIC BACKPACK', emoji: '🎒', price: '149,000 원' },
-                { name: 'MONTANA SKI GLOVE', emoji: '🧤', price: '89,000 원', badge: 'new' },
-                { name: 'HORIZON HAT', emoji: '🧢', discount: 30, price: '27,300 원' }
+                { id: 1, name: "M'S OBIR HYBRID DOWN COAT", emoji: '🧥', discount: 40, price: '314,100 원', badge: 'new' },
+                { id: 2, name: "M'S HIMALAYAN PARKA (RDS)", emoji: '🧥', price: '950,000 원' },
+                { id: 3, name: "W'S EVERLOFT DOWN COAT (RDS)", emoji: '🧥', discount: 20, price: '318,400 원', badge: 'sale' },
+                { id: 4, name: "W'S 2000 NUPTSE JACKET", emoji: '🧥', discount: 20, price: '319,200 원', badge: 'sale' },
+                { id: 5, name: 'BOREALIS BOOTIE', emoji: '🥾', discount: 20, price: '135,200 원', badge: 'sale' },
+                { id: 6, name: 'BOREALIS CLASSIC BACKPACK', emoji: '🎒', price: '149,000 원' },
+                { id: 7, name: 'MONTANA SKI GLOVE', emoji: '🧤', price: '89,000 원', badge: 'new' },
+                { id: 8, name: 'HORIZON HAT', emoji: '🧢', discount: 30, price: '27,300 원' }
             ];
 
             const CARD_WIDTH = 300;
@@ -198,14 +207,15 @@
             let animationID = 0;
             let autoPlayInterval = null;
 
-            // Render 2 sets
+            // Render 2 sets (each card wrapped with anchor to product-detail servlet)
             function renderCards() {
                 track.innerHTML = '';
                 for (let copy = 0; copy < 2; copy++) {
                     products.forEach(function(p) {
-                        const div = document.createElement('div');
-                        div.className = 'product-card';
-                        div.draggable = false;
+                        const a = document.createElement('a');
+                        a.className = 'product-link';
+                        a.draggable = false;
+                        a.href = CP + '/product-detail?id=' + p.id;
                         
                         let html = '<div class="product-image">' + p.emoji;
                         if (p.badge) {
@@ -220,8 +230,12 @@
                         html += '<span class="sale-price">' + p.price + '</span>';
                         html += '</div></div>';
                         
-                        div.innerHTML = html;
-                        track.appendChild(div);
+                        const card = document.createElement('div');
+                        card.className = 'product-card';
+                        card.draggable = false;
+                        card.innerHTML = html;
+                        a.appendChild(card);
+                        track.appendChild(a);
                     });
                 }
             }
@@ -285,18 +299,25 @@
                 if (autoPlayInterval) clearInterval(autoPlayInterval);
             }
 
+            // Click vs Drag discrimination
+            let allowClick = true;
+
             function touchStart(event) {
                 isDragging = true;
                 startPos = getPositionX(event);
                 animationID = requestAnimationFrame(animation);
                 track.style.transition = 'none';
                 stopAutoPlay();
+                allowClick = true;
             }
 
             function touchMove(event) {
                 if (isDragging) {
                     const currentPosition = getPositionX(event);
                     currentTranslate = prevTranslate + currentPosition - startPos;
+                    if (Math.abs(currentTranslate - prevTranslate) > 10) {
+                        allowClick = false;
+                    }
                 }
             }
 
@@ -338,6 +359,14 @@
             track.addEventListener('mouseleave', function() {
                 if (isDragging) touchEnd();
             });
+
+            // Prevent link navigation when it was a drag
+            track.addEventListener('click', function(e) {
+                if (!allowClick) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
 
             // Start autoplay
             setTimeout(startAutoPlay, 500);

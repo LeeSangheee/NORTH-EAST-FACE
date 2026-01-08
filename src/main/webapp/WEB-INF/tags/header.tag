@@ -18,19 +18,19 @@
 </style>
 <header class="global-header">
     <div class="header-inner">
-        <a class="logo-link" href="${pageContext.request.contextPath}/index.jsp">
+        <a class="logo-link" href="${pageContext.request.contextPath}/">
             <img src="${pageContext.request.contextPath}/static/images/logo.png" alt="NORTH EAST FACE"/>
         </a>
         <button class="icon-button" aria-label="Toggle menu">☰</button>
         <nav class="main-nav" aria-label="Primary">
-            <a href="${pageContext.request.contextPath}/products.jsp">ACTIVITY</a>
-            <a href="${pageContext.request.contextPath}/products.jsp">NEW</a>
-            <a href="${pageContext.request.contextPath}/products.jsp">랭킹</a>
-            <a href="${pageContext.request.contextPath}/products.jsp">화이트라벨</a>
-            <a href="${pageContext.request.contextPath}/products.jsp">남성</a>
-            <a href="${pageContext.request.contextPath}/products.jsp">여성</a>
-            <a href="${pageContext.request.contextPath}/products.jsp">키즈</a>
-            <a href="${pageContext.request.contextPath}/products.jsp">아울렛 ↗</a>
+            <a href="${pageContext.request.contextPath}/products">ACTIVITY</a>
+            <a href="${pageContext.request.contextPath}/products">NEW</a>
+            <a href="${pageContext.request.contextPath}/products">랭킹</a>
+            <a href="${pageContext.request.contextPath}/products">화이트라벨</a>
+            <a href="${pageContext.request.contextPath}/products">남성</a>
+            <a href="${pageContext.request.contextPath}/products">여성</a>
+            <a href="${pageContext.request.contextPath}/products">키즈</a>
+            <a href="${pageContext.request.contextPath}/products">아울렛 ↗</a>
         </nav>
         <div class="header-spacer"></div>
         <div class="header-right">
@@ -38,9 +38,9 @@
                 <input type="text" placeholder="눕시가이드" aria-label="Search"/>
                 <span class="search-icon">🔍</span>
             </div>
-            <a class="icon-button" href="${pageContext.request.contextPath}/products.jsp" aria-label="Cart">🛒</a>
-            <a class="icon-button" href="${pageContext.request.contextPath}/hello.jsp" aria-label="Account">👤</a>
-            <a class="icon-button" href="${pageContext.request.contextPath}/login.jsp" aria-label="Login">↪</a>
+            <a class="icon-button" href="${pageContext.request.contextPath}/products" aria-label="Cart">🛒</a>
+            <a class="icon-button" href="${pageContext.request.contextPath}/hello" aria-label="Account">👤</a>
+            <a class="icon-button" href="${pageContext.request.contextPath}/login" aria-label="Login">↪</a>
         </div>
     </div>
 </header>

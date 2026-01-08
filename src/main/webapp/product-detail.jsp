@@ -42,7 +42,7 @@
         <div class="content">
             <div class="image">🧥</div>
             <div class="details">
-                <div class="breadcrumb"><a href="index.jsp">Home</a> / <a href="products.jsp">Shop</a> / IDE Jacket</div>
+                <div class="breadcrumb"><a href="/">Home</a> / <a href="/products">Shop</a> / IDE Jacket</div>
                 <span class="badge">NEW</span>
                 <h2>IDE 울트라 자켓</h2>
                 <div class="price">₩ 590,000</div>
@@ -53,7 +53,7 @@
                     <li>• 빌드 실패 방오 처리</li>
                     <li>• 노트북 수납 포켓 포함</li>
                 </ul>
-                <a class="cta" href="products.jsp">Back to Shop</a>
+                <a class="cta" href="/products">Back to Shop</a>
             </div>
         </div>
     </div>

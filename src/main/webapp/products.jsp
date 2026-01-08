@@ -46,7 +46,7 @@
             </div>
             <div class="product-footer">
                 <span class="tag">신상품</span>
-                <a class="btn" href="product-detail.jsp">View</a>
+                <a class="btn" href="/product-detail">View</a>
             </div>
         </div>
 
@@ -59,7 +59,7 @@
             </div>
             <div class="product-footer">
                 <span class="tag">베스트</span>
-                <a class="btn" href="backpack-detail.jsp">View</a>
+                <a class="btn" href="/product-detail">View</a>
             </div>
         </div>
 
@@ -72,7 +72,7 @@
             </div>
             <div class="product-footer">
                 <span class="tag">한정판</span>
-                <a class="btn" href="product-detail.jsp">View</a>
+                <a class="btn" href="/product-detail">View</a>
             </div>
         </div>
 
@@ -85,7 +85,7 @@
             </div>
             <div class="product-footer">
                 <span class="tag">NEW</span>
-                <a class="btn" href="product-detail.jsp">View</a>
+                <a class="btn" href="/product-detail">View</a>
             </div>
         </div>
     </section>
