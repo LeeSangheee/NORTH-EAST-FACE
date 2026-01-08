@@ -25,17 +25,27 @@
         .hero-dots { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 2; }
         .hero-dots button { width: 11px; height: 11px; border-radius: 50%; border: 1px solid #fff; background: rgba(255,255,255,0.4); cursor: pointer; transition: background 0.2s, transform 0.2s; }
         .hero-dots button.is-active { background: #fff; transform: scale(1.05); }
-        .categories { padding: 4rem 0; background: #f8f8f8; }
+        .new-arrivals { padding: 4rem 0; background: #fff; overflow: hidden; }
+        .new-arrivals-header { text-align: center; margin-bottom: 2.5rem; }
+        .new-arrivals-header h2 { font-size: 2.8rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .new-arrivals-header h2 .new-text { color: #e53935; }
+        .new-arrivals-header p { color: #666; font-size: 1rem; letter-spacing: 0.02em; }
+        .products-slider { position: relative; max-width: 1200px; margin: 0 auto; }
+        .products-track-container { overflow: hidden; width: 100%; }
+        .products-track { display: flex; gap: 20px; will-change: transform; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; cursor: grab; }
+        .products-track:active { cursor: grabbing; }
+        .product-card { flex: 0 0 280px; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+        .product-image { width: 100%; height: 280px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 6rem; position: relative; }
+        .product-badge { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
+        .badge { background: #000; color: #fff; padding: 4px 8px; font-size: 0.7rem; font-weight: 600; border-radius: 2px; text-transform: uppercase; }
+        .product-info { padding: 1.2rem; }
+        .product-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.8rem; line-height: 1.3; min-height: 2.6em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .product-price { display: flex; align-items: center; gap: 8px; }
+        .discount-rate { color: #e53935; font-weight: 700; font-size: 1rem; }
+        .sale-price { font-size: 1.05rem; font-weight: 700; }
+        .original-price { color: #999; text-decoration: line-through; font-size: 0.9rem; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 3rem; font-weight: 300; }
-        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-        .category-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.3s; }
-        .category-card:hover { transform: translateY(-5px); }
-        .category-image { height: 200px; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
-        .category-content { padding: 1.5rem; }
-        .category-content h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
-        .category-content p { color: #666; margin-bottom: 1rem; }
-        .category-link { color: #000; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
         .footer { background: #000; color: white; padding: 3rem 0 1rem; }
         .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
         .footer-section h4 { margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
@@ -62,32 +72,15 @@
         <div class="hero-dots" id="heroDots" aria-label="Hero banners"></div>
     </section>
 
-    <section class="categories" id="categories">
+    <section class="new-arrivals">
         <div class="container">
-            <h2 class="section-title">개발자를 위한 컬렉션</h2>
-            <div class="category-grid">
-                <div class="category-card">
-                    <div class="category-image">🧥</div>
-                    <div class="category-content">
-                        <h3>IDE 울트라 자켓</h3>
-                        <p>극한의 추위에서도 코딩 가능한 프리미엄 개발자 자켓</p>
-                        <a href="products.jsp" class="category-link">Shop IDE Jackets →</a>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <div class="category-image">🎒</div>
-                    <div class="category-content">
-                        <h3>코드 베이스캠프 백팩</h3>
-                        <p>모든 개발 장비를 안전하게 보관하는 대용량 백팩</p>
-                        <a href="products.jsp" class="category-link">Shop Backpacks →</a>
-                    </div>
-                </div>
-                <div class="category-card">
-                    <div class="category-image">☕</div>
-                    <div class="category-content">
-                        <h3>카페인 서바이벌 키트</h3>
-                        <p>24시간 코딩을 위한 프리미엄 커피 장비 세트</p>
-                        <a href="products.jsp" class="category-link">Shop Caffeine →</a>
+            <div class="new-arrivals-header">
+                <h2><span class="new-text">New</span> Arrivals</h2>
+                <p>가장 먼저 만나 보는 신상품 컬렉션</p>
+            </div>
+            <div class="products-slider">
+                <div class="products-track-container">
+                    <div class="products-track" id="productsTrack">
                     </div>
                 </div>
             </div>
@@ -145,7 +138,7 @@
             slides.forEach((_, i) => {
                 const b = document.createElement('button');
                 b.type = 'button';
-                b.setAttribute('aria-label', `배너 ${i + 1}`);
+                b.setAttribute('aria-label', '배너 ' + (i + 1));
                 b.addEventListener('click', () => {
                     clearInterval(timer);
                     setActive(i);
@@ -174,6 +167,180 @@
 
             setActive(0);
             start();
+        })();
+
+        // Products slider - TRUE INFINITE LOOP (2 sets with boundary jump)
+        (function() {
+            const track = document.getElementById('productsTrack');
+            if (!track) {
+                alert('Track element not found!');
+                return;
+            }
+
+            const products = [
+                { name: "M'S OBIR HYBRID DOWN COAT", emoji: '🧥', discount: 40, price: '314,100 원', badge: 'new' },
+                { name: "M'S HIMALAYAN PARKA (RDS)", emoji: '🧥', price: '950,000 원' },
+                { name: "W'S EVERLOFT DOWN COAT (RDS)", emoji: '🧥', discount: 20, price: '318,400 원', badge: 'sale' },
+                { name: "W'S 2000 NUPTSE JACKET", emoji: '🧥', discount: 20, price: '319,200 원', badge: 'sale' },
+                { name: 'BOREALIS BOOTIE', emoji: '🥾', discount: 20, price: '135,200 원', badge: 'sale' },
+                { name: 'BOREALIS CLASSIC BACKPACK', emoji: '🎒', price: '149,000 원' },
+                { name: 'MONTANA SKI GLOVE', emoji: '🧤', price: '89,000 원', badge: 'new' },
+                { name: 'HORIZON HAT', emoji: '🧢', discount: 30, price: '27,300 원' }
+            ];
+
+            const CARD_WIDTH = 300;
+            const TOTAL = products.length; // 8
+            let position = 0;
+            let isDragging = false;
+            let startPos = 0;
+            let currentTranslate = 0;
+            let prevTranslate = 0;
+            let animationID = 0;
+            let autoPlayInterval = null;
+
+            // Render 2 sets
+            function renderCards() {
+                track.innerHTML = '';
+                for (let copy = 0; copy < 2; copy++) {
+                    products.forEach(function(p) {
+                        const div = document.createElement('div');
+                        div.className = 'product-card';
+                        div.draggable = false;
+                        
+                        let html = '<div class="product-image">' + p.emoji;
+                        if (p.badge) {
+                            html += '<div class="product-badge"><span class="badge">' + p.badge + '</span></div>';
+                        }
+                        html += '</div><div class="product-info">';
+                        html += '<div class="product-name">' + p.name + '</div>';
+                        html += '<div class="product-price">';
+                        if (p.discount) {
+                            html += '<span class="discount-rate">' + p.discount + '%</span>';
+                        }
+                        html += '<span class="sale-price">' + p.price + '</span>';
+                        html += '</div></div>';
+                        
+                        div.innerHTML = html;
+                        track.appendChild(div);
+                    });
+                }
+            }
+
+            renderCards();
+            currentTranslate = -position * CARD_WIDTH;
+            prevTranslate = currentTranslate;
+            setSliderPosition();
+
+            function setSliderPosition() {
+                track.style.transform = 'translateX(' + currentTranslate + 'px)';
+            }
+
+            function animation() {
+                setSliderPosition();
+                if (isDragging) requestAnimationFrame(animation);
+            }
+
+            function checkAndWrap() {
+                // Wrap to first set when reaching end of first set
+                if (position >= TOTAL) {
+                    track.style.transition = 'none';
+                    position = 0;
+                    currentTranslate = 0;
+                    prevTranslate = currentTranslate;
+                    setSliderPosition();
+                    requestAnimationFrame(function() {
+                        track.style.transition = '';
+                    });
+                }
+                // Wrap to first set when going below 0
+                else if (position < 0) {
+                    track.style.transition = 'none';
+                    position = TOTAL - 1;
+                    currentTranslate = -position * CARD_WIDTH;
+                    prevTranslate = currentTranslate;
+                    setSliderPosition();
+                    requestAnimationFrame(function() {
+                        track.style.transition = '';
+                    });
+                }
+            }
+
+            function autoSlide() {
+                position += 1;
+                currentTranslate = -position * CARD_WIDTH;
+                prevTranslate = currentTranslate;
+                
+                track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                setSliderPosition();
+                
+                setTimeout(checkAndWrap, 600);
+            }
+
+            function startAutoPlay() {
+                if (autoPlayInterval) clearInterval(autoPlayInterval);
+                autoPlayInterval = setInterval(autoSlide, 3000);
+            }
+
+            function stopAutoPlay() {
+                if (autoPlayInterval) clearInterval(autoPlayInterval);
+            }
+
+            function touchStart(event) {
+                isDragging = true;
+                startPos = getPositionX(event);
+                animationID = requestAnimationFrame(animation);
+                track.style.transition = 'none';
+                stopAutoPlay();
+            }
+
+            function touchMove(event) {
+                if (isDragging) {
+                    const currentPosition = getPositionX(event);
+                    currentTranslate = prevTranslate + currentPosition - startPos;
+                }
+            }
+
+            function touchEnd() {
+                isDragging = false;
+                cancelAnimationFrame(animationID);
+
+                const movedBy = currentTranslate - prevTranslate;
+
+                if (movedBy < -50) {
+                    // Swipe left: next slide
+                    position += 1;
+                } else if (movedBy > 50) {
+                    // Swipe right: previous slide
+                    position -= 1;
+                }
+
+                currentTranslate = -position * CARD_WIDTH;
+                prevTranslate = currentTranslate;
+                
+                track.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                setSliderPosition();
+                
+                setTimeout(checkAndWrap, 400);
+                startAutoPlay();
+            }
+
+            function getPositionX(event) {
+                return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+            }
+
+            // Event listeners
+            track.addEventListener('mousedown', touchStart);
+            track.addEventListener('touchstart', touchStart, { passive: true });
+            track.addEventListener('mousemove', touchMove);
+            track.addEventListener('touchmove', touchMove, { passive: true });
+            track.addEventListener('mouseup', touchEnd);
+            track.addEventListener('touchend', touchEnd);
+            track.addEventListener('mouseleave', function() {
+                if (isDragging) touchEnd();
+            });
+
+            // Start autoplay
+            setTimeout(startAutoPlay, 500);
         })();
     </script>
 </body>
