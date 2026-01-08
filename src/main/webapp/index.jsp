@@ -9,11 +9,22 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; }
-        .hero { height: 100vh; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23333" width="1200" height="800"/><polygon fill="%23555" points="0,800 400,200 800,600 1200,100 1200,800"/><text x="600" y="400" text-anchor="middle" fill="%23777" font-size="120" font-family="Arial">⛰️</text></svg>'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; text-align: center; color: white; }
-        .hero-content h1 { font-size: 4rem; font-weight: 300; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .hero-content p { font-size: 1.2rem; margin-bottom: 2rem; max-width: 600px; }
-        .cta-button { display: inline-block; background: #fff; color: #000; padding: 1rem 2rem; text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; border: 2px solid #fff; }
-        .cta-button:hover { background: transparent; color: #fff; }
+        .hero { position: relative; height: 78vh; min-height: 520px; color: white; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .hero-carousel { position: absolute; inset: 0; }
+        .hero-slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 0.8s ease-in-out; }
+        .hero-slide.is-active { opacity: 1; }
+        .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.35)); }
+        .hero-content { position: relative; z-index: 1; padding: 0 1.5rem; }
+        .hero-content h1 { font-size: 3.8rem; font-weight: 700; margin-bottom: 0.8rem; letter-spacing: 0.01em; text-shadow: 2px 2px 8px rgba(0,0,0,0.55); text-transform: uppercase; }
+        .hero-content .hero-sub { font-size: 1.1rem; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 1rem; text-shadow: 1px 1px 5px rgba(0,0,0,0.45); }
+        .hero-content .hero-meta { display: inline-flex; gap: 10px; align-items: center; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 0.4rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.5); }
+        .hero-nav { position: absolute; inset: 0; display: flex; justify-content: space-between; align-items: center; pointer-events: none; padding: 0 18px; z-index: 2; }
+        .hero-nav button { pointer-events: all; background: rgba(0,0,0,0.35); color: #fff; border: 1px solid rgba(255,255,255,0.35); border-radius: 50%; width: 44px; height: 44px; font-size: 20px; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+        .hero-nav button:hover { background: rgba(0,0,0,0.55); transform: translateY(-2px); }
+        .hero-nav button:focus { outline: 2px solid #fff; outline-offset: 2px; }
+        .hero-dots { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 2; }
+        .hero-dots button { width: 11px; height: 11px; border-radius: 50%; border: 1px solid #fff; background: rgba(255,255,255,0.4); cursor: pointer; transition: background 0.2s, transform 0.2s; }
+        .hero-dots button.is-active { background: #fff; transform: scale(1.05); }
         .categories { padding: 4rem 0; background: #f8f8f8; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
         .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 3rem; font-weight: 300; }
@@ -36,11 +47,19 @@
     <ui:header />
 
     <section class="hero">
-        <div class="hero-content">
-            <h1>NEVER STOP CODING</h1>
-            <p>혹독한 개발 환경을 이겨내는 혁신적인 장비. 개발자를 위한 프리미엄 아웃도어 브랜드.</p>
-            <a href="products.jsp" class="cta-button">Shop Now</a>
+        <div class="hero-carousel" id="heroCarousel">
+            <div class="hero-slide is-active" style="background-image: url('${pageContext.request.contextPath}/static/images/carousel/banner1.webp');"></div>
+            <div class="hero-slide" style="background-image: url('${pageContext.request.contextPath}/static/images/carousel/banner2.webp');"></div>
+            <div class="hero-slide" style="background-image: url('${pageContext.request.contextPath}/static/images/carousel/banner3.webp');"></div>
+            <div class="hero-slide" style="background-image: url('${pageContext.request.contextPath}/static/images/carousel/banner4.webp');"></div>
         </div>
+        <div class="hero-nav" aria-hidden="true">
+            <button type="button" id="heroPrev" aria-label="Previous banner">‹</button>
+            <button type="button" id="heroNext" aria-label="Next banner">›</button>
+        </div>
+        <div class="hero-content">
+        </div>
+        <div class="hero-dots" id="heroDots" aria-label="Hero banners"></div>
     </section>
 
     <section class="categories" id="categories">
@@ -106,5 +125,56 @@
             © 2026 NORTH EAST FACE®. Never Stop Coding.
         </div>
     </footer>
+    <script>
+        (function() {
+            const slides = Array.from(document.querySelectorAll('#heroCarousel .hero-slide'));
+            const dotsContainer = document.getElementById('heroDots');
+            const prevBtn = document.getElementById('heroPrev');
+            const nextBtn = document.getElementById('heroNext');
+            if (!slides.length || !dotsContainer || !prevBtn || !nextBtn) return;
+
+            let current = 0;
+            let timer;
+
+            const setActive = (idx) => {
+                slides.forEach((s, i) => s.classList.toggle('is-active', i === idx));
+                Array.from(dotsContainer.children).forEach((d, i) => d.classList.toggle('is-active', i === idx));
+                current = idx;
+            };
+
+            slides.forEach((_, i) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.setAttribute('aria-label', `배너 ${i + 1}`);
+                b.addEventListener('click', () => {
+                    clearInterval(timer);
+                    setActive(i);
+                    start();
+                });
+                dotsContainer.appendChild(b);
+            });
+
+            const next = () => setActive((current + 1) % slides.length);
+            const prev = () => setActive((current - 1 + slides.length) % slides.length);
+            const start = () => {
+                timer = setInterval(next, 4500);
+            };
+
+            prevBtn.addEventListener('click', () => {
+                clearInterval(timer);
+                prev();
+                start();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                clearInterval(timer);
+                next();
+                start();
+            });
+
+            setActive(0);
+            start();
+        })();
+    </script>
 </body>
 </html>
