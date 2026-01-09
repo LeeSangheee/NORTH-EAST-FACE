@@ -131,11 +131,6 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 
-    private boolean isDuplicateKey(SQLException e) {
-        // MySQL duplicate key uses SQLState 23000
-        return "23000".equals(e.getSQLState());
-    }
-
     private String trim(String s) {
         return s == null ? "" : s.trim();
     }

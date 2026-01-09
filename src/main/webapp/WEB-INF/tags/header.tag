@@ -1,4 +1,5 @@
 <%@ tag language="java" pageEncoding="UTF-8" body-content="empty" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%-- Shared header tag --%>
 <style>
     .global-header { position: sticky; top: 0; z-index: 1000; background: #fff; border-bottom: 1px solid #eee; }
@@ -15,8 +16,15 @@
     .search-box { display: flex; align-items: center; gap: 8px; border: 1px solid #d0d0d0; border-radius: 8px; padding: 8px 10px; min-width: 200px; }
     .search-box input { border: none; outline: none; font-size: 14px; width: 100%; }
     .search-box .search-icon { font-size: 18px; color: #333; }
-        .cart-link { position: relative; }
-        .cart-badge { position: absolute; top: -4px; right: -6px; background: #111; color: #fff; border-radius: 999px; min-width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; padding: 0 5px; border: 2px solid #fff; }
+    .cart-link { position: relative; }
+    .cart-badge { position: absolute; top: -4px; right: -6px; background: #111; color: #fff; border-radius: 999px; min-width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; padding: 0 5px; border: 2px solid #fff; }
+    
+    /* User menu */
+    .header-right { position: relative; }
+    .user-menu { position: relative; text-decoration: none; font-weight: 400; }
+    .user-menu:hover { color: #666; }
+    .user-menu strong { font-weight: 600; }
+    .user-dropdown { position: absolute; right: 0; }
 
         /* Login-required modal (shared) */
         .login-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1300; }
@@ -69,9 +77,21 @@
                 <input type="text" placeholder="눕시가이드" aria-label="Search"/>
                 <span class="search-icon">🔍</span>
             </div>
-                                <a class="icon-button cart-link" href="${pageContext.request.contextPath}/cart" aria-label="Cart">🛒<span id="cartCount" class="cart-badge" style="display:none">0</span></a>
-            <a class="icon-button" href="${pageContext.request.contextPath}/hello" aria-label="Account">👤</a>
-            <a class="icon-button" href="${pageContext.request.contextPath}/login" aria-label="Login">↪</a>
+            <a class="icon-button cart-link" href="${pageContext.request.contextPath}/cart" aria-label="Cart">🛒<span id="cartCount" class="cart-badge" style="display:none">0</span></a>
+            
+            <c:choose>
+                <c:when test="${requestScope.isLoggedIn}">
+                    <a class="icon-button user-menu" href="#" aria-label="User Menu" id="userMenuBtn" style="font-size: 13px; padding: 6px 8px;"><strong>${requestScope.username}</strong>님</a>
+                    <div class="user-dropdown" id="userDropdown" style="display: none; position: absolute; top: 50px; right: 0; background: #fff; border: 1px solid #eee; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 120px;">
+                        <a href="${pageContext.request.contextPath}/mypage" style="display: block; padding: 10px 14px; color: #111; text-decoration: none; font-size: 13px; border-bottom: 1px solid #eee;">마이페이지</a>
+                        <a href="${pageContext.request.contextPath}/logout" style="display: block; padding: 10px 14px; color: #111; text-decoration: none; font-size: 13px;">로그아웃</a>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <a class="icon-button" href="${pageContext.request.contextPath}/login" aria-label="Login" style="font-size: 13px; font-weight: 600;">로그인</a>
+                    <a class="icon-button" href="${pageContext.request.contextPath}/register" aria-label="Sign Up" style="font-size: 13px; font-weight: 600;">회원가입</a>
+                </c:otherwise>
+            </c:choose>
         </div>
     </div>
 </header>
@@ -97,47 +117,95 @@
             (function(){
                 var KEY = 'nef_cart';
                 var badge = document.getElementById('cartCount');
-                function countItems(){
+                var API_BASE = '${pageContext.request.contextPath}/api/cart';
+
+                function localCount(){
                     try {
                         var raw = localStorage.getItem(KEY);
-                        var list = raw ? JSON.parse(raw) : [];
-                        var total = Array.isArray(list) ? list.reduce(function(sum, it){ return sum + (it.qty || 0); }, 0) : 0;
-                        if (!badge) return;
-                        badge.textContent = String(total);
-                        badge.style.display = total > 0 ? 'inline-flex' : 'none';
-                    } catch(e) {}
+                        if (!raw) return 0;
+                        var list = JSON.parse(raw);
+                        if (!Array.isArray(list)) return 0;
+                        return list.length; // distinct item count, not qty sum
+                    } catch(e) {
+                        console.error('localCount error:', e);
+                        return 0;
+                    }
                 }
-                window.nefUpdateCartBadge = countItems;
-                window.addEventListener('storage', function(ev){ if (ev.key === KEY) countItems(); });
-                countItems();
+
+                function applyBadge(total){
+                    if (!badge) return;
+                    var count = parseInt(total, 10);
+                    if (isNaN(count) || count < 0) count = 0;
+                    badge.textContent = String(count);
+                    badge.style.display = count > 0 ? 'inline-flex' : 'none';
+                }
+
+                async function dbCount(){
+                    try {
+                        var res = await fetch(API_BASE, { 
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json' },
+                            credentials: 'same-origin'
+                        });
+                        if (!res.ok) {
+                            console.warn('DB cart fetch failed:', res.status);
+                            throw new Error('HTTP ' + res.status);
+                        }
+                        var items = await res.json();
+                        if (!Array.isArray(items)) {
+                            console.warn('DB cart response not array:', items);
+                            items = [];
+                        }
+                        var total = Array.isArray(items) ? items.length : 0; // count distinct rows
+                        var lc = localCount();
+                        if (total === 0 && lc > 0) {
+                            console.log('Using local count as fallback:', lc);
+                            total = lc;
+                        }
+                        applyBadge(total);
+                    } catch(e) {
+                        console.error('dbCount error:', e);
+                        applyBadge(localCount());
+                    }
+                }
+
+                function updateCartBadge(){
+                    if (window.IS_LOGGED_IN) {
+                        dbCount();
+                    } else {
+                        applyBadge(localCount());
+                    }
+                }
+
+                window.nefUpdateCartBadge = updateCartBadge;
+                window.addEventListener('storage', function(ev){ if (ev.key === KEY) updateCartBadge(); });
 
                 // Global login modal helpers
-                window.IS_LOGGED_IN = ${sessionScope.user != null};
+                // Server-driven login flag (JWT is HttpOnly, so client cannot detect reliably)
+                window.IS_LOGGED_IN = ${requestScope.isLoggedIn ? "true" : "false"};
+
+                // Initialize badge on load
+                updateCartBadge();
+
                 function showLoginModal(){ var m = document.getElementById('globalLoginModal'); if (m) { m.classList.add('is-open'); m.setAttribute('aria-hidden','false'); } }
                 function hideLoginModal(){ var m = document.getElementById('globalLoginModal'); if (m) { m.classList.remove('is-open'); m.setAttribute('aria-hidden','true'); } }
                 window.showLoginModal = showLoginModal;
                 window.hideLoginModal = hideLoginModal;
                 document.getElementById('globalLoginModal').addEventListener('click', function(e){ if (e.target.dataset && e.target.dataset.close) hideLoginModal(); });
+                
+                // User menu dropdown
+                var userMenuBtn = document.getElementById('userMenuBtn');
+                var userDropdown = document.getElementById('userDropdown');
+                if (userMenuBtn && userDropdown) {
+                    userMenuBtn.addEventListener('click', function(e){
+                        e.preventDefault();
+                        userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
+                    });
+                    document.addEventListener('click', function(e){
+                        if (e.target !== userMenuBtn && !userDropdown.contains(e.target)) {
+                            userDropdown.style.display = 'none';
+                        }
+                    });
+                }
             })();
         </script>
-<script>
-    (function(){
-        var KEY = 'nef_cart';
-        var badge = document.getElementById('cartCount');
-        function countItems(){
-            try {
-                var raw = localStorage.getItem(KEY);
-                var list = raw ? JSON.parse(raw) : [];
-                var total = Array.isArray(list) ? list.reduce(function(sum, it){ return sum + (it.qty || 0); }, 0) : 0;
-                if (!badge) return;
-                badge.textContent = String(total);
-                badge.style.display = total > 0 ? 'inline-flex' : 'none';
-            } catch(e) {
-                // ignore
-            }
-        }
-        window.nefUpdateCartBadge = countItems;
-        window.addEventListener('storage', function(ev){ if (ev.key === KEY) countItems(); });
-        countItems();
-    })();
-</script>
