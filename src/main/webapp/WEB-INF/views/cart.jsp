@@ -95,9 +95,8 @@
   </main>
 
   <script>
-    var KEY = 'nef_cart';
     var CTX = '${pageContext.request.contextPath}';
-    var IS_LOGGED_IN = <%= !showLoginNote %>;
+    var IS_LOGGED_IN = <%= !showLoginNote ? "true" : "false" %>;
     
     var $list = document.getElementById('cartList');
     var $summary = document.getElementById('summary');
@@ -109,25 +108,6 @@
     var selected = [];
     var currentCart = [];
 
-    // ============ 데이터 조회 함수 ============
-    function readCart(){
-      return currentCart || [];
-    }
-
-    function readLocalStorageCart(){
-      try { var raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : []; } catch(e){ return []; }
-    }
-
-    function writeCart(list){
-      if (IS_LOGGED_IN) {
-        currentCart = list;
-        saveCartToDb(list);
-      } else {
-        currentCart = list;
-        try { localStorage.setItem(KEY, JSON.stringify(list)); if (window.nefUpdateCartBadge) window.nefUpdateCartBadge(); } catch(e){}
-      }
-    }
-
     function currency(n){ return new Intl.NumberFormat('ko-KR').format(n) + ' 원'; }
     
     function showToast(text){
@@ -136,53 +116,98 @@
       t.textContent = text; t.style.opacity='1'; clearTimeout(t._timer); t._timer=setTimeout(function(){ t.style.opacity='0'; },1500);
     }
 
-    // ============ API 호출 함수 ============
-    function getCartFromDb(callback) {
-      fetch(CTX + '/api/cart/items', { method: 'GET' })
+    // ============ DB API 함수 ============
+    function loadCartFromDb(callback) {
+      if (!IS_LOGGED_IN) {
+        if (callback) callback([]);
+        return;
+      }
+      fetch(CTX + '/api/cart', { method: 'GET' })
         .then(function(res){ return res.json(); })
-        .then(function(items){ 
-          if (callback) callback(items || []);
+        .then(function(data){ 
+          if (callback) callback(data.items || []);
         })
         .catch(function(err){ 
-          console.error('DB에서 카트 로드 실패:', err);
+          console.error('장바구니 로드 실패:', err);
           if (callback) callback([]);
         });
     }
 
-    function saveCartToDb(items) {
-      fetch(CTX + '/api/cart/migrate', {
+    function updateCartItemQty(cartItemId, quantity, callback) {
+      var params = new URLSearchParams();
+      params.append('action', 'update');
+      params.append('cartItemId', cartItemId);
+      params.append('quantity', quantity);
+      
+      fetch(CTX + '/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'action=add&items=' + encodeURIComponent(JSON.stringify(items))
-      })
-      .catch(function(err){ console.error('DB 저장 실패:', err); });
-    }
-
-    function migrateLocalStorageToDb(onSuccess, onFail) {
-      var localItems = readLocalStorageCart();
-      if (!localItems || localItems.length === 0) {
-        if (typeof onSuccess === 'function') onSuccess();
-        return;
-      }
-
-      fetch(CTX + '/api/cart/migrate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'action=migrate&items=' + encodeURIComponent(JSON.stringify(localItems))
+        body: params.toString()
       })
       .then(function(res){ return res.json(); })
       .then(function(data){
-        if (data && data.success) {
-          try { localStorage.removeItem(KEY); } catch(e){}
-          if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
-          if (typeof onSuccess === 'function') onSuccess();
+        if (data.success) {
+          if (callback) callback(true);
         } else {
-          if (typeof onFail === 'function') onFail();
+          showToast('수량 변경 실패');
+          if (callback) callback(false);
         }
       })
       .catch(function(err){ 
-        console.error('마이그레이션 실패:', err);
-        if (typeof onFail === 'function') onFail();
+        console.error('수량 변경 실패:', err);
+        showToast('수량 변경 중 오류 발생');
+        if (callback) callback(false);
+      });
+    }
+
+    function deleteCartItem(cartItemId, callback) {
+      var params = new URLSearchParams();
+      params.append('action', 'delete');
+      params.append('cartItemId', cartItemId);
+      
+      fetch(CTX + '/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      })
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        if (data.success) {
+          if (callback) callback(true);
+        } else {
+          showToast('삭제 실패');
+          if (callback) callback(false);
+        }
+      })
+      .catch(function(err){ 
+        console.error('삭제 실패:', err);
+        showToast('삭제 중 오류 발생');
+        if (callback) callback(false);
+      });
+    }
+
+    function clearCart(callback) {
+      var params = new URLSearchParams();
+      params.append('action', 'clear');
+      
+      fetch(CTX + '/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      })
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        if (data.success) {
+          if (callback) callback(true);
+        } else {
+          showToast('전체 삭제 실패');
+          if (callback) callback(false);
+        }
+      })
+      .catch(function(err){ 
+        console.error('전체 삭제 실패:', err);
+        showToast('삭제 중 오류 발생');
+        if (callback) callback(false);
       });
     }
 
@@ -191,7 +216,7 @@
     }
 
     function render(cart){
-      if (!cart) cart = readCart();
+      if (!cart) cart = [];
       currentCart = cart;
       syncSelection(cart.length);
       $titleCount.textContent = '상품 ' + cart.length + '개';
@@ -208,22 +233,22 @@
       var selectedCount = 0;
 
       cart.forEach(function(it, idx){
-        var line = (it.price || 0) * (it.qty || 1);
-        if (selected[idx]) { selectedTotal += line; selectedCount += (it.qty || 1); }
+        var line = (it.price || 0) * (it.quantity || 1);
+        if (selected[idx]) { selectedTotal += line; selectedCount += (it.quantity || 1); }
+        
+        var imageUrl = it.imageFileName || (CTX + '/static/images/logo.png');
+        
         html += '' +
           '<div class="item">' +
             '<div class="item-check"><input type="checkbox" class="row-check" data-idx="' + idx + '" ' + (selected[idx] ? 'checked' : '') + '></div>' +
-            '<div class="thumb">' + (it.emoji || '🧥') + '</div>' +
+            '<div class="thumb"><img src="' + imageUrl + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\'' + CTX + '/static/images/logo.png\'"></div>' +
             '<div class="info">' +
               '<div class="brand">NORTH EAST FACE</div>' +
-              '<div class="name">' + (it.name || '상품') + '</div>' +
+              '<div class="name">' + (it.productName || '상품') + '</div>' +
               '<div class="meta">' +
-                '<span class="chip" style="background:' + (it.color || '#ccc') + ';"></span>' +
-                '<span>' + (it.size || '') + '</span>' +
-                '<span>' + ((it.qty||1)) + '개</span>' +
+                '<span>' + (it.quantity || 1) + '개</span>' +
               '</div>' +
               '<div class="opt-btns">' +
-                '<button class="ghost-btn" data-idx="' + idx + '" data-action="change">옵션/수량 변경</button>' +
                 '<button class="ghost-btn" data-idx="' + idx + '" data-action="remove">삭제</button>' +
               '</div>' +
             '</div>' +
@@ -231,7 +256,7 @@
               '<div class="price-main">' + currency(line) + '</div>' +
               '<div class="qty">' +
                 '<button type="button" data-idx="' + idx + '" data-action="minus">-</button>' +
-                '<span>' + (it.qty || 1) + '</span>' +
+                '<span>' + (it.quantity || 1) + '</span>' +
                 '<button type="button" data-idx="' + idx + '" data-action="plus">+</button>' +
               '</div>' +
               '<button class="buy-btn" data-idx="' + idx + '" data-action="buy">바로구매</button>' +
@@ -278,38 +303,52 @@
       document.querySelectorAll('[data-action="minus"]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var i = parseInt(btn.getAttribute('data-idx'), 10);
-          var list = readCart();
-          list[i].qty = Math.max(1, (list[i].qty || 1) - 1);
-          writeCart(list); render(list);
+          var item = currentCart[i];
+          if (!item) return;
+          var newQty = Math.max(1, (item.quantity || 1) - 1);
+          updateCartItemQty(item.cartItemId, newQty, function(success){
+            if (success) {
+              loadCartFromDb(render);
+              if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
+            }
+          });
         });
       });
       document.querySelectorAll('[data-action="plus"]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var i = parseInt(btn.getAttribute('data-idx'), 10);
-          var list = readCart();
-          list[i].qty = (list[i].qty || 1) + 1;
-          writeCart(list); render(list);
+          var item = currentCart[i];
+          if (!item) return;
+          var newQty = (item.quantity || 1) + 1;
+          updateCartItemQty(item.cartItemId, newQty, function(success){
+            if (success) {
+              loadCartFromDb(render);
+              if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
+            }
+          });
         });
       });
       document.querySelectorAll('[data-action="remove"]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var i = parseInt(btn.getAttribute('data-idx'), 10);
-          var list = readCart();
-          list.splice(i,1);
-          writeCart(list); selected.splice(i,1); render(list);
+          var item = currentCart[i];
+          if (!item) return;
+          deleteCartItem(item.cartItemId, function(success){
+            if (success) {
+              selected.splice(i, 1);
+              loadCartFromDb(render);
+              if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
+            }
+          });
         });
-      });
-      document.querySelectorAll('[data-action="change"]').forEach(function(btn){
-        btn.addEventListener('click', function(){ showToast('옵션 변경은 상세 페이지에서 진행해주세요'); });
       });
       document.querySelectorAll('[data-action="buy"]').forEach(function(btn){
         btn.addEventListener('click', function(){
-          <% if (!showLoginNote) { %>
+          if (IS_LOGGED_IN) {
             window.location.href = CTX + '/checkout';
-          <% } else { %>
-            if (window.IS_LOGGED_IN) { window.location.href = CTX + '/checkout'; return; }
+          } else {
             window.showLoginModal && window.showLoginModal();
-          <% } %>
+          }
         });
       });
     }
@@ -317,83 +356,74 @@
     function bindSummaryEvents(cart){
       var orderBtn = document.getElementById('orderBtn');
       if (orderBtn) orderBtn.addEventListener('click', function(){
-        <% if (!showLoginNote) { %>
+        if (IS_LOGGED_IN) {
           window.location.href = CTX + '/checkout';
-        <% } else { %>
-          if (window.IS_LOGGED_IN) { window.location.href = CTX + '/checkout'; return; }
+        } else {
           window.showLoginModal && window.showLoginModal();
-        <% } %>
+        }
       });
     }
 
     $selectAll.addEventListener('change', function(){
       selected = selected.map(function(){ return $selectAll.checked; });
-      render();
+      render(currentCart);
     });
 
     $deleteSelected.addEventListener('click', function(){
-      var list = readCart();
-      var next = [];
-      var nextSel = [];
-      list.forEach(function(it, idx){
-        if (!selected[idx]) { next.push(it); nextSel.push(true); }
+      if (!IS_LOGGED_IN) {
+        showToast('로그인이 필요합니다');
+        return;
+      }
+      var toDelete = [];
+      currentCart.forEach(function(item, idx){
+        if (selected[idx]) toDelete.push(item.cartItemId);
       });
-      selected = nextSel;
-      writeCart(next); render(next);
+      
+      if (toDelete.length === 0) {
+        showToast('선택된 상품이 없습니다');
+        return;
+      }
+      
+      var deleteCount = 0;
+      toDelete.forEach(function(cartItemId){
+        deleteCartItem(cartItemId, function(success){
+          deleteCount++;
+          if (deleteCount === toDelete.length) {
+            loadCartFromDb(render);
+            if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
+          }
+        });
+      });
     });
 
     $deleteAll.addEventListener('click', function(){
-      writeCart([]); selected = []; render([]);
+      if (!IS_LOGGED_IN) {
+        showToast('로그인이 필요합니다');
+        return;
+      }
+      clearCart(function(success){
+        if (success) {
+          selected = [];
+          loadCartFromDb(render);
+          if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
+        }
+      });
     });
-
-    window.addEventListener('storage', function(ev){ if (ev.key === KEY && !IS_LOGGED_IN) render(); });
 
     // ============ 초기화 ============
     function initCart() {
-      if (IS_LOGGED_IN) {
-        var localItems = readLocalStorageCart();
-        if (localItems && localItems.length > 0) {
-          render(localItems); // 1) 로컬 먼저 렌더링
-          migrateLocalStorageToDb(function(){ // 2) 마이그레이션 성공 시 DB에서 새로 조회하여 렌더
-            getCartFromDb(function(items){
-              var serverItems = (items || []).map(function(it){
-                return {
-                  productId: it.productId,
-                  qty: it.quantity,
-                  price: it.price,
-                  name: it.name,
-                  emoji: '🧥'
-                };
-              });
-              render(serverItems);
-            });
-          }, function(){
-            // 실패 시 로컬 그대로 유지 (아무 것도 하지 않음)
-          });
-        } else {
-          getCartFromDb(function(items){
-            var serverItems = (items || []).map(function(it){
-              return {
-                productId: it.productId,
-                qty: it.quantity,
-                price: it.price,
-                name: it.name,
-                emoji: '🧥'
-              };
-            });
-            render(serverItems);
-          });
+      if (!IS_LOGGED_IN) {
+        render([]);
+        return;
+      }
+      loadCartFromDb(function(items){
+        console.log('Cart loaded from DB:', items);
+        render(items);
+        if (window.nefUpdateCartBadge) {
+          window.nefUpdateCartBadge();
         }
-      } else {
-        render();
-      }
+      });
     }
-
-    window.checkAndMigrateCart = function() {
-      if (IS_LOGGED_IN) {
-        migrateLocalStorageToDb();
-      }
-    };
 
     initCart();
   </script>

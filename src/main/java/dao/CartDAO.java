@@ -18,11 +18,11 @@ public class CartDAO {
      */
     public List<Map<String, Object>> getCartItems(long memberId) throws SQLException {
         List<Map<String, Object>> items = new ArrayList<>();
-        String sql = "SELECT c.cart_item_id, c.product_id, c.quantity, p.name, p.price " +
+        String sql = "SELECT c.cart_item_id, c.product_id, c.quantity, p.name, p.price, p.image_file_name " +
                      "FROM cart_items c " +
-                     "JOIN product p ON c.product_id = p.product_id " +
+                     "JOIN products p ON c.product_id = p.product_id " +
                      "WHERE c.member_id = ? " +
-                     "ORDER BY c.created_at DESC";
+                     "ORDER BY c.cart_item_id DESC";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -33,8 +33,9 @@ public class CartDAO {
                     item.put("cartItemId", rs.getLong("cart_item_id"));
                     item.put("productId", rs.getLong("product_id"));
                     item.put("quantity", rs.getInt("quantity"));
-                    item.put("name", rs.getString("name"));
+                    item.put("productName", rs.getString("name"));
                     item.put("price", rs.getInt("price"));
+                    item.put("imageFileName", rs.getString("image_file_name"));
                     items.add(item);
                 }
             }
@@ -48,7 +49,7 @@ public class CartDAO {
     public void addOrUpdateCartItem(long memberId, long productId, int quantity) throws SQLException {
         String checkSql = "SELECT quantity FROM cart_items WHERE member_id = ? AND product_id = ?";
         String insertSql = "INSERT INTO cart_items (member_id, product_id, quantity) VALUES (?, ?, ?)";
-        String updateSql = "UPDATE cart_item SET quantity = quantity + ? WHERE member_id = ? AND product_id = ?";
+        String updateSql = "UPDATE cart_items SET quantity = quantity + ? WHERE member_id = ? AND product_id = ?";
         
         try (Connection conn = DBConnection.getConnection()) {
             // 기존 아이템 확인
@@ -88,6 +89,21 @@ public class CartDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, cartItemId);
             ps.setLong(2, memberId);
+            ps.executeUpdate();
+        }
+    }
+    
+    /**
+     * 특정 장바구니 아이템의 수량 변경
+     */
+    public void updateCartItemQuantity(long memberId, long cartItemId, int quantity) throws SQLException {
+        String sql = "UPDATE cart_items SET quantity = ? WHERE cart_item_id = ? AND member_id = ?";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, quantity);
+            ps.setLong(2, cartItemId);
+            ps.setLong(3, memberId);
             ps.executeUpdate();
         }
     }

@@ -136,50 +136,69 @@
 
   <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script>
-    var KEY = 'nef_cart';
     var CTX = '${pageContext.request.contextPath}';
-    var IS_LOGGED_IN = <%= Boolean.TRUE.equals(request.getAttribute("isLoggedIn")) %>;
+    var IS_LOGGED_IN = <%= Boolean.TRUE.equals(request.getAttribute("isLoggedIn")) ? "true" : "false" %>;
     var PREFILL_NAME = '<%= mName %>';
     var PREFILL_EMAIL = '<%= mEmail %>';
     var PREFILL_PHONE = '<%= mPhone %>';
+    
+    // 바로구매 상품 정보
+    var directItem = <%= request.getAttribute("directItem") != null ? "true" : "false" %>;
+    <%
+      java.util.Map directItemAttr = (java.util.Map) request.getAttribute("directItem");
+      String directProductJson = "null";
+      if (directItemAttr != null) {
+        Long productId = (Long) directItemAttr.get("productId");
+        String productName = (String) directItemAttr.get("productName");
+        Integer quantity = (Integer) directItemAttr.get("quantity");
+        Double price = (Double) directItemAttr.get("price");
+        directProductJson = "{\"productId\":" + productId + ",\"productName\":\"" + (productName != null ? productName.replace("\"", "\\\"") : "") + "\",\"quantity\":" + quantity + ",\"price\":" + price + "}";
+      }
+    %>
+    var directProduct = <%=directProductJson%>;
     
     function currency(n){ 
       return new Intl.NumberFormat('ko-KR').format(n) + ' 원'; 
     }
 
-    function readLocalCart(){ 
-      try { 
-        var raw = localStorage.getItem(KEY); 
-        return raw ? JSON.parse(raw) : []; 
-      } catch(e){ 
-        return []; 
-      } 
-    }
-
     function fetchDbCart(){
+      if (!IS_LOGGED_IN) {
+        return Promise.resolve([]);
+      }
       return fetch(CTX + '/api/cart', {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         credentials: 'same-origin'
       })
       .then(function(res){ if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-      .then(function(items){
-        if (!Array.isArray(items)) return [];
+      .then(function(data){
+        var items = data.items || [];
         return items.map(function(it){
           return {
-            name: it.name,
+            productId: it.productId,
+            name: it.productName,
             qty: it.quantity,
             price: it.price
           };
         });
+      })
+      .catch(function(err){
+        console.error('Cart load error:', err);
+        return [];
       });
     }
 
     function loadCart(){
-      if (IS_LOGGED_IN) {
-        return fetchDbCart().catch(function(){ return readLocalCart(); });
+      // 바로구매 상품이 있으면 그것만 표시
+      if (directItem && directProduct) {
+        return Promise.resolve([{
+          productId: directProduct.productId,
+          name: directProduct.productName,
+          qty: directProduct.quantity,
+          price: directProduct.price
+        }]);
       }
-      return Promise.resolve(readLocalCart());
+      return fetchDbCart();
     }
     
     function renderSummary(cart){
@@ -198,6 +217,17 @@
       
       document.getElementById('summaryItems').innerHTML = html;
       document.getElementById('totalPrice').textContent = currency(total);
+      
+      // 총액을 전역 변수에 저장 (결제 시 사용)
+      window.orderTotal = total;
+      // 주문 항목 배열 변환 (서버 전송용 포맷)
+      window.orderCart = cart.map(function(item){
+        return {
+          productId: item.productId,
+          quantity: item.qty || 1,
+          price: item.price || 0
+        };
+      });
     }
     
     // 결제 방법 선택 (신용카드 고정, UI만 유지)
@@ -236,22 +266,50 @@
     var zipBtn = document.getElementById('zipSearch');
     if (zipBtn) zipBtn.addEventListener('click', openPostcode);
     
-    // 결제 버튼
-    document.querySelector('.checkout-btn').addEventListener('click', function(){
-      alert('테스트 결제 완료! (실제 결제는 진행되지 않습니다)');
-      if (IS_LOGGED_IN) {
-        fetch(CTX + '/api/cart', {
+    // 결제 버튼 (주문 요약 패널의 버튼)
+    var checkoutBtn = document.querySelector('aside.order-summary .checkout-btn');
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', function(){
+        if (!IS_LOGGED_IN) {
+          alert('로그인이 필요합니다.');
+          window.location.href = CTX + '/login';
+          return;
+        }
+        
+        // 주문 정보 수집
+        var orderData = {
+          totalAmount: window.orderTotal || 0,
+          items: window.orderCart || [],
+          directItem: directItem
+        };
+        
+        console.log('Sending order:', orderData);
+        
+        // 서버에 주문 저장 요청
+        fetch(CTX + '/api/order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: 'action=clear'
-        }).catch(function(){});
-      }
-      localStorage.removeItem(KEY);
-      window.location.href = CTX + '/';
-    });
+          body: JSON.stringify(orderData)
+        })
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          console.log('Order response:', data);
+          if (data.success) {
+            alert('결제 완료! (테스트)\n주문번호: ' + data.orderId);
+            window.location.href = CTX + '/';
+          } else {
+            alert('결제 실패: ' + (data.message || '오류'));
+          }
+        })
+        .catch(function(err){
+          console.error('Order error:', err);
+          alert('결제 처리 중 오류 발생');
+        });
+      });
+    }
     
-    loadCart().then(renderSummary).catch(function(){ renderSummary(readLocalCart()); });
+    loadCart().then(renderSummary).catch(function(){ renderSummary([]); });
   </script>
 </body>
 </html>

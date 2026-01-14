@@ -70,10 +70,6 @@
         </nav>
         <div class="header-spacer"></div>
         <div class="header-right">
-            <div class="search-box">
-                <input type="text" placeholder="눕시가이드" aria-label="Search"/>
-                <span class="search-icon">🔍</span>
-            </div>
             <a class="icon-button cart-link" href="${pageContext.request.contextPath}/cart" aria-label="Cart">🛒<span id="cartCount" class="cart-badge" style="display:none">0</span></a>
             
             <c:choose>
@@ -112,22 +108,8 @@
         </div>
         <script>
             (function(){
-                var KEY = 'nef_cart';
                 var badge = document.getElementById('cartCount');
                 var API_BASE = '${pageContext.request.contextPath}/api/cart';
-
-                function localCount(){
-                    try {
-                        var raw = localStorage.getItem(KEY);
-                        if (!raw) return 0;
-                        var list = JSON.parse(raw);
-                        if (!Array.isArray(list)) return 0;
-                        return list.length; // distinct item count, not qty sum
-                    } catch(e) {
-                        console.error('localCount error:', e);
-                        return 0;
-                    }
-                }
 
                 function applyBadge(total){
                     if (!badge) return;
@@ -146,23 +128,15 @@
                         });
                         if (!res.ok) {
                             console.warn('DB cart fetch failed:', res.status);
-                            throw new Error('HTTP ' + res.status);
+                            applyBadge(0);
+                            return;
                         }
-                        var items = await res.json();
-                        if (!Array.isArray(items)) {
-                            console.warn('DB cart response not array:', items);
-                            items = [];
-                        }
-                        var total = Array.isArray(items) ? items.length : 0; // count distinct rows
-                        var lc = localCount();
-                        if (total === 0 && lc > 0) {
-                            console.log('Using local count as fallback:', lc);
-                            total = lc;
-                        }
-                        applyBadge(total);
+                        var data = await res.json();
+                        var items = data.items || [];
+                        applyBadge(items.length);
                     } catch(e) {
                         console.error('dbCount error:', e);
-                        applyBadge(localCount());
+                        applyBadge(0);
                     }
                 }
 
@@ -170,12 +144,11 @@
                     if (window.IS_LOGGED_IN) {
                         dbCount();
                     } else {
-                        applyBadge(localCount());
+                        applyBadge(0);
                     }
                 }
 
                 window.nefUpdateCartBadge = updateCartBadge;
-                window.addEventListener('storage', function(ev){ if (ev.key === KEY) updateCartBadge(); });
 
                 // Global login modal helpers
                 // Server-driven login flag (JWT is HttpOnly, so client cannot detect reliably)

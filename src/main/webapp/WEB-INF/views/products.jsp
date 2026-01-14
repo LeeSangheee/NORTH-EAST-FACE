@@ -227,25 +227,10 @@
     </div>
     
     <script>
-        // 로컬스토리지 카트 수량 표시
-        function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const count = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
-            const badge = document.getElementById('cartCount');
-            if (badge) {
-                if (count > 0) {
-                    badge.textContent = count > 99 ? '99+' : count;
-                    badge.style.display = 'inline-block';
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
+        // 장바구니 카운트는 header.tag에서 관리
+        if (window.nefUpdateCartBadge) {
+            window.nefUpdateCartBadge();
         }
-        
-        updateCartCount();
-        
-        // 카트 변경 감지
-        window.addEventListener('storage', updateCartCount);
     </script>
 </body>
 </html>

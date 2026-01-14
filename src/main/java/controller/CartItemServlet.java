@@ -69,6 +69,17 @@ public class CartItemServlet extends HttpServlet {
                 dao.addOrUpdateCartItem(memberId, productId, quantity);
                 sendSuccess(response, "아이템이 추가되었습니다.");
                 
+            } else if ("update".equals(action)) {
+                long cartItemId = Long.parseLong(request.getParameter("cartItemId"));
+                int quantity = Integer.parseInt(request.getParameter("quantity"));
+                dao.updateCartItemQuantity(memberId, cartItemId, quantity);
+                sendSuccess(response, "수량이 변경되었습니다.");
+                
+            } else if ("delete".equals(action)) {
+                long cartItemId = Long.parseLong(request.getParameter("cartItemId"));
+                dao.deleteCartItem(memberId, cartItemId);
+                sendSuccess(response, "아이템이 삭제되었습니다.");
+                
             } else if ("migrate".equals(action)) {
                 String jsonStr = request.getParameter("items");
                 if (jsonStr == null || jsonStr.isEmpty()) {
@@ -142,7 +153,7 @@ public class CartItemServlet extends HttpServlet {
     }
     
     private String listToJson(List<Map<String, Object>> items) {
-        StringBuilder sb = new StringBuilder("[");
+        StringBuilder sb = new StringBuilder("{\"items\":[");
         for (int i = 0; i < items.size(); i++) {
             if (i > 0) sb.append(",");
             Map<String, Object> item = items.get(i);
@@ -150,11 +161,12 @@ public class CartItemServlet extends HttpServlet {
             sb.append("\"cartItemId\":").append(item.get("cartItemId")).append(",");
             sb.append("\"productId\":").append(item.get("productId")).append(",");
             sb.append("\"quantity\":").append(item.get("quantity")).append(",");
-            sb.append("\"name\":\"").append(escapeJson(String.valueOf(item.get("name")))).append("\",");
-            sb.append("\"price\":").append(item.get("price"));
+            sb.append("\"productName\":\"").append(escapeJson(String.valueOf(item.get("productName")))).append("\",");
+            sb.append("\"price\":").append(item.get("price")).append(",");
+            sb.append("\"imageFileName\":\"").append(escapeJson(String.valueOf(item.get("imageFileName")))).append("\"");
             sb.append("}");
         }
-        sb.append("]");
+        sb.append("]}");
         return sb.toString();
     }
     

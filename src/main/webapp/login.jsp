@@ -110,7 +110,6 @@
             <button type="submit">Login</button>
         </form>
         <script>
-            // 로그인 성공 후 localStorage → DB 마이그레이션
             document.querySelector('form').addEventListener('submit', function(e){
                 // 폼 제출 전, 마이그레이션 함수가 있으면 호출
                 if (window.checkAndMigrateCart) {
