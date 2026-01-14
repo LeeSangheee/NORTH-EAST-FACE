@@ -56,11 +56,20 @@ echo -e "${YELLOW}[STEP 3/4] Deploying WAR file...${NC}"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 WAR_FILE="$SCRIPT_DIR/target/${WAR_NAME}.war"
 
-# Maven이 설치되어 있으면 빌드 (기존 파일 있으면 지우고 다시 빌드)
+# 빌드 전 Tomcat 중지로 리소스 확보
+if pgrep -f "tomcat" > /dev/null; then
+    echo "Stopping Tomcat before build to free resources..."
+    sudo "$CATALINA_HOME/bin/shutdown.sh"
+    sleep 3
+fi
+
+# Maven이 설치되어 있으면 빌드 (기존 파일 제거 후 다시 빌드)
 if command -v mvn &> /dev/null; then
     echo "Building WAR file with Maven..."
     cd "$SCRIPT_DIR"
-    mvn clean package -DskipTests
+    # 메모리 제한 및 로그 최소화로 EC2 소형 인스턴스에서도 안정적으로 빌드
+    export MAVEN_OPTS="-Xmx512m -XX:+UseG1GC"
+    mvn -q clean package -DskipTests
     
     if [ $? -ne 0 ]; then
         echo -e "${RED}[ERROR] Maven build failed!${NC}"
