@@ -17,6 +17,9 @@ CATALINA_HOME=${CATALINA_HOME:-$TOMCAT_HOME}
 WAR_NAME="north-east-face"
 APP_NAME="north-east-face"
 
+# 스크립트 디렉토리 저장 (초기에 정의)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 echo "============================================"
 echo "  North East Face EC2 Deployment"
 echo "============================================"
@@ -68,6 +71,7 @@ if [[ "$TOMCAT_VERSION" =~ ^10\. ]] || [[ "$TOMCAT_VERSION" =~ ^11\. ]]; then
     sudo chown -R $USER:$USER /opt/tomcat
     sudo chmod +x /opt/tomcat/bin/*.sh
     echo -e "${GREEN}✓ Tomcat 9 installed (replaced Tomcat $TOMCAT_VERSION)${NC}"
+    cd "$SCRIPT_DIR"  # 프로젝트 디렉토리로 복귀
     
 elif [ ! -d "$CATALINA_HOME" ]; then
     echo "Tomcat not found. Installing Tomcat 9..."
@@ -78,6 +82,7 @@ elif [ ! -d "$CATALINA_HOME" ]; then
     sudo chown -R $USER:$USER /opt/tomcat
     sudo chmod +x /opt/tomcat/bin/*.sh
     echo -e "${GREEN}✓ Tomcat 9 installed${NC}"
+    cd "$SCRIPT_DIR"  # 프로젝트 디렉토리로 복귀
 else
     echo -e "${GREEN}✓ Tomcat $TOMCAT_VERSION already installed${NC}"
 fi
@@ -86,7 +91,6 @@ fi
 echo ""
 echo -e "${YELLOW}[STEP 3/4] Deploying WAR file...${NC}"
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 WAR_FILE="$SCRIPT_DIR/target/${WAR_NAME}.war"
 
 # 빌드 전 Tomcat 중지로 리소스 확보
