@@ -18,32 +18,24 @@ WAR_NAME="north-east-face"
 APP_NAME="north-east-face"
 
 echo "============================================"
-echo "  North East Face EC2 Setup & Deploy"
+echo "  North East Face EC2 Deployment"
 echo "============================================"
 
-# ============= 1단계: 필수 소프트웨어 설치 =============
+# ============= 1단계: Java 설치 =============
 echo ""
-echo -e "${YELLOW}[STEP 1/6] Installing required software...${NC}"
+echo -e "${YELLOW}[STEP 1/4] Installing Java...${NC}"
 
-# Java 설치 확인
 if ! command -v java &> /dev/null; then
-    echo "Installing Java..."
+    echo "Installing Java 11..."
     sudo apt update
     sudo apt install -y openjdk-11-jdk
 fi
 echo -e "${GREEN}✓ Java installed${NC}"
 java -version
 
-# MySQL 설치 확인
-if ! command -v mysql &> /dev/null; then
-    echo "Installing MySQL..."
-    sudo apt install -y mysql-server
-fi
-echo -e "${GREEN}✓ MySQL installed${NC}"
-
 # ============= 2단계: Tomcat 설치 =============
 echo ""
-echo -e "${YELLOW}[STEP 2/6] Installing Tomcat 10...${NC}"
+echo -e "${YELLOW}[STEP 2/4] Installing Tomcat 10...${NC}"
 
 if [ ! -d "$CATALINA_HOME" ]; then
     echo "Tomcat not found. Installing..."
@@ -57,78 +49,21 @@ else
     echo -e "${GREEN}✓ Tomcat already installed at: $CATALINA_HOME${NC}"
 fi
 
-# ============= 3단계: MySQL 데이터베이스 설정 =============
+# ============= 3단계: WAR 파일 배포 =============
 echo ""
-echo -e "${YELLOW}[STEP 3/6] Setting up MySQL database...${NC}"
+echo -e "${YELLOW}[STEP 3/4] Deploying WAR file...${NC}"
 
-read -p "Enter MySQL root password: " -s MYSQL_ROOT_PASS
-echo
-
-# 데이터베이스 생성
-echo "Creating database..."
-mysql -u root -p"$MYSQL_ROOT_PASS" <<EOF
-CREATE DATABASE IF NOT EXISTS north_east_face CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'nef_user'@'localhost' IDENTIFIED BY 'nef_password_123';
-GRANT ALL PRIVILEGES ON north_east_face.* TO 'nef_user'@'localhost';
-FLUSH PRIVILEGES;
-EOF
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Database created${NC}"
-else
-    echo -e "${RED}[ERROR] Failed to create database${NC}"
-    exit 1
-fi
-
-# 테이블 생성
-echo "Creating tables..."
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -f "$SCRIPT_DIR/db/schema.sql" ]; then
-    mysql -u nef_user -p'nef_password_123' north_east_face < "$SCRIPT_DIR/db/schema.sql"
-    echo -e "${GREEN}✓ Tables created${NC}"
-else
-    echo -e "${YELLOW}[WARNING] schema.sql not found at $SCRIPT_DIR/db/${NC}"
-    echo "Please manually run: mysql -u nef_user -p north_east_face < db/schema.sql"
-fi
-
-# ============= 4단계: DBConnection 설정 파일 수정 =============
-echo ""
-echo -e "${YELLOW}[STEP 4/6] Updating database connection config...${NC}"
-
-DB_CONNECTION_FILE="$SCRIPT_DIR/src/main/java/util/DBConnection.java"
-
-if [ -f "$DB_CONNECTION_FILE" ]; then
-    # DBConnection.java에서 DB URL, USER, PASSWORD 자동 설정 (선택사항)
-    echo -e "${GREEN}✓ DBConnection file located${NC}"
-    echo "  File: $DB_CONNECTION_FILE"
-    echo "  Please verify the following settings match your EC2 environment:"
-    echo "    - URL: jdbc:mysql://localhost:3306/north_east_face"
-    echo "    - USER: nef_user"
-    echo "    - PASSWORD: nef_password_123"
-else
-    echo -e "${YELLOW}[WARNING] DBConnection.java not found${NC}"
-fi
-
-# ============= 5단계: WAR 파일 배포 =============
-echo ""
-echo -e "${YELLOW}[STEP 5/6] Deploying WAR file...${NC}"
-
 WAR_FILE="$SCRIPT_DIR/target/${WAR_NAME}.war"
 
 if [ ! -f "$WAR_FILE" ]; then
     echo -e "${RED}[ERROR] WAR file not found: $WAR_FILE${NC}"
     echo ""
-    echo "WAR 파일을 생성해야 합니다. 다음 방법 중 하나를 선택하세요:"
-    echo ""
-    echo "[방법 1] 로컬 컴퓨터에서 빌드 후 업로드:"
-    echo "  1. 로컬에서 실행: mvn clean package -DskipTests"
-    echo "  2. WAR 파일 생성 확인: target/north-east-face.war"
-    echo "  3. EC2로 업로드: scp -i your-key.pem target/north-east-face.war ec2-user@your-ip:/tmp/"
-    echo "  4. EC2에서 이동: sudo cp /tmp/north-east-face.war $CATALINA_HOME/webapps/"
-    echo ""
-    echo "[방법 2] Git에서 클론 후 재시도:"
-    echo "  1. git clone <repository>"
-    echo "  2. ./deploy.sh 다시 실행"
+    echo "🔧 WAR 파일을 생성해야 합니다:"
+    echo "  1. 로컬 컴퓨터에서: mvn clean package -DskipTests"
+    echo "  2. EC2로 업로드: scp -i your-key.pem target/north-east-face.war ec2-user@your-ip:/tmp/"
+    echo "  3. EC2에서 이동: sudo cp /tmp/north-east-face.war $CATALINA_HOME/webapps/"
+    echo "  4. 스크립트 재실행: ./deploy.sh"
     echo ""
     exit 1
 fi
@@ -156,9 +91,9 @@ fi
 
 echo -e "${GREEN}✓ WAR file deployed${NC}"
 
-# ============= 6단계: Tomcat 시작 =============
+# ============= 4단계: Tomcat 시작 =============
 echo ""
-echo -e "${YELLOW}[STEP 6/6] Starting Tomcat...${NC}"
+echo -e "${YELLOW}[STEP 4/4] Starting Tomcat...${NC}"
 
 # Tomcat 프로세스 확인 및 종료
 if pgrep -f "tomcat" > /dev/null; then
@@ -183,16 +118,18 @@ fi
 # ============= 완료 =============
 echo ""
 echo "============================================"
-echo -e "${GREEN}  ✓ Deployment Completed Successfully!${NC}"
+echo -e "${GREEN}  ✓ Deployment Completed!${NC}"
 echo "============================================"
 echo ""
-echo "📌 Access your application:"
-echo "  URL: http://$(hostname -I | awk '{print $1}'):8080/${APP_NAME}/"
+echo "📌 Application URL:"
+echo "  http://$(hostname -I | awk '{print $1}'):8080/${APP_NAME}/"
 echo ""
 echo "📌 Useful commands:"
 echo "  View logs:    tail -f $CATALINA_HOME/logs/catalina.out"
 echo "  Stop Tomcat:  sudo $CATALINA_HOME/bin/shutdown.sh"
 echo "  Start Tomcat: sudo $CATALINA_HOME/bin/startup.sh"
 echo ""
-echo "✅ Setup complete! Check if the application is accessible in your browser."
+echo "⚠️  Database Setup:"
+echo "  MySQL 데이터베이스 설정은 별도로 진행하세요."
+echo "  자세한 내용은 README.md를 참조하세요."
 echo ""
