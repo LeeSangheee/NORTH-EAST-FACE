@@ -53,32 +53,35 @@ fi
 echo ""
 echo -e "${YELLOW}[STEP 3/4] Deploying WAR file...${NC}"
 
-# WAR 파일 위치 결정 (로컬 또는 /tmp 확인)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 WAR_FILE="$SCRIPT_DIR/target/${WAR_NAME}.war"
-TMP_WAR_FILE="/tmp/${WAR_NAME}.war"
 
-# /tmp에 WAR 파일이 있으면 우선 사용
-if [ -f "$TMP_WAR_FILE" ]; then
-    WAR_FILE="$TMP_WAR_FILE"
-    echo "Found WAR file in /tmp, using it..."
+# Maven이 설치되어 있으면 빌드 (기존 파일 있으면 지우고 다시 빌드)
+if command -v mvn &> /dev/null; then
+    echo "Building WAR file with Maven..."
+    cd "$SCRIPT_DIR"
+    mvn clean package -DskipTests
+    
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}[ERROR] Maven build failed!${NC}"
+        exit 1
+    fi
+else
+    echo -e "${RED}[ERROR] Maven not found! Cannot build WAR file.${NC}"
+    echo ""
+    echo "🔧 해결 방법:"
+    echo "  1. EC2에 Maven 설치: sudo apt install -y maven"
+    echo "  또는"
+    echo "  2. 로컬에서 빌드 후 업로드:"
+    echo "     cd NORTH-EAST-FACE"
+    echo "     mvn clean package -DskipTests"
+    echo "     scp -i your-key.pem target/north-east-face.war ec2-user@YOUR-IP:/tmp/"
+    echo ""
+    exit 1
 fi
 
 if [ ! -f "$WAR_FILE" ]; then
-    echo -e "${RED}[ERROR] WAR file not found!${NC}"
-    echo ""
-    echo "🔧 로컬 컴퓨터에서 WAR 파일을 빌드하고 EC2로 업로드해야 합니다:"
-    echo ""
-    echo "  📍 로컬 컴퓨터:"
-    echo "     cd NORTH-EAST-FACE"
-    echo "     mvn clean package -DskipTests"
-    echo ""
-    echo "  📍 로컬에서 EC2로 업로드:"
-    echo "     scp -i your-key.pem target/north-east-face.war ec2-user@YOUR-IP:/tmp/"
-    echo ""
-    echo "  📍 EC2에서 스크립트 재실행:"
-    echo "     bash ./deploy.sh"
-    echo ""
+    echo -e "${RED}[ERROR] WAR file not found after build: $WAR_FILE${NC}"
     exit 1
 fi
 
