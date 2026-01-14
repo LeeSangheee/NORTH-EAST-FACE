@@ -53,20 +53,36 @@ fi
 echo ""
 echo -e "${YELLOW}[STEP 3/4] Deploying WAR file...${NC}"
 
+# WAR 파일 위치 결정 (로컬 또는 /tmp 확인)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 WAR_FILE="$SCRIPT_DIR/target/${WAR_NAME}.war"
+TMP_WAR_FILE="/tmp/${WAR_NAME}.war"
+
+# /tmp에 WAR 파일이 있으면 우선 사용
+if [ -f "$TMP_WAR_FILE" ]; then
+    WAR_FILE="$TMP_WAR_FILE"
+    echo "Found WAR file in /tmp, using it..."
+fi
 
 if [ ! -f "$WAR_FILE" ]; then
-    echo -e "${RED}[ERROR] WAR file not found: $WAR_FILE${NC}"
+    echo -e "${RED}[ERROR] WAR file not found!${NC}"
     echo ""
-    echo "🔧 WAR 파일을 생성해야 합니다:"
-    echo "  1. 로컬 컴퓨터에서: mvn clean package -DskipTests"
-    echo "  2. EC2로 업로드: scp -i your-key.pem target/north-east-face.war ec2-user@your-ip:/tmp/"
-    echo "  3. EC2에서 이동: sudo cp /tmp/north-east-face.war $CATALINA_HOME/webapps/"
-    echo "  4. 스크립트 재실행: ./deploy.sh"
+    echo "🔧 로컬 컴퓨터에서 WAR 파일을 빌드하고 EC2로 업로드해야 합니다:"
+    echo ""
+    echo "  📍 로컬 컴퓨터:"
+    echo "     cd NORTH-EAST-FACE"
+    echo "     mvn clean package -DskipTests"
+    echo ""
+    echo "  📍 로컬에서 EC2로 업로드:"
+    echo "     scp -i your-key.pem target/north-east-face.war ec2-user@YOUR-IP:/tmp/"
+    echo ""
+    echo "  📍 EC2에서 스크립트 재실행:"
+    echo "     bash ./deploy.sh"
     echo ""
     exit 1
 fi
+
+echo "Using WAR file: $WAR_FILE"
 
 # 기존 애플리케이션 제거
 if [ -d "$CATALINA_HOME/webapps/$APP_NAME" ]; then
