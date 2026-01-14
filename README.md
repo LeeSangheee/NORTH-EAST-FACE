@@ -1,113 +1,304 @@
-# jakartaee9-servlet-starter-boilerplate
+# NORTH EAST FACE - 이커머스 쇼핑몰
 
-![Compile and build](https://github.com/hantsy/jakartaee9-servlet-starter-boilerplate/workflows/Build/badge.svg)
-[![it-tomcat](https://github.com/hantsy/jakartaee9-servlet-starter-boilerplate/actions/workflows/it-tomcat.yml/badge.svg)](https://github.com/hantsy/jakartaee9-servlet-starter-boilerplate/actions/workflows/it-tomcat.yml)
-[![it-jetty](https://github.com/hantsy/jakartaee9-servlet-starter-boilerplate/actions/workflows/it-jetty.yml/badge.svg)](https://github.com/hantsy/jakartaee9-servlet-starter-boilerplate/actions/workflows/it-jetty.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=hantsy_jakartaee9-servlet-starter-boilerplate&metric=alert_status)](https://sonarcloud.io/dashboard?id=hantsy_jakartaee9-servlet-starter-boilerplate)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=hantsy_jakartaee9-servlet-starter-boilerplate&metric=coverage)](https://sonarcloud.io/dashboard?id=hantsy_jakartaee9-servlet-starter-boilerplate)
+Java 기반 고급 의류/등산용품 이커머스 플랫폼입니다.
 
-Yeah, this is another starter boilerplate project for Jakarta EE (esp. Servlet/Java Web) developers.
+## 주요 기능
 
-This repository is a lightweight variant of the original [Jakarta EE 9 starter boilerplate](https://github.com/hantsy/jakartaee9-starter-boilerplate), which allows you to run applications on a Servlet 5.0 compatible container, such as Apache Tomcat, Eclipse Jetty, WildFly Undertow.
+* 회원 관리 (회원가입, 로그인, 이메일 기반 인증)
+* JWT 토큰 기반 인증 시스템
+* 상품 조회 및 상세 정보
+* 장바구니 (로컬스토리지 + DB 동기화)
+* 결제 페이지 (테스트 모드)
+* 위시리스트 (찜)
+* 다음 우편번호 API 통합
+* 반응형 웹 디자인
 
-The following features have been added:
+## 기술 스택
 
-* Jakarta REST 3.0(Jersey 3.0)
-* CDI 3.0 (Weld 4.0)
-* Jakarta Server Faces 3.0(Mojarra 3.0)
-* And transitive dependencies of the above features, including Jakarta EL, Jakarta JSON Processing, Jakarta JSON Binding, Jakarta Validation(Hibernate Validator), etc.
-
-Nowadays, the most popular Servlet containers, such as Apache Tomcat and Eclipse Jetty, have built-in support for Jakarta Servlet, Jakarta Server Pages (JSP), JSTL, Jakarta Expression Language (EL), and Jakarta WebSocket.
-
-> [!NOTE]
-> For full-fledged features support of Jakarta EE 9, please go to [hantsy/jakartaee9-starter-boilerplate](https://github.com/hantsy/jakartaee9-starter-boilerplate).
+* **Backend**: Java 11+, Servlet 5.0, JSP
+* **Database**: MySQL
+* **Authentication**: JWT (JSON Web Token)
+* **Frontend**: HTML5, CSS3, JavaScript
+* **Build**: Maven
+* **Server**: Apache Tomcat 10
 
 
-## Build 
+## 설치 및 실행
 
-## Prerequisites 
+### 필수 요구사항
 
-Assume you have installed the following essential software:
+* **JDK 11 이상** (권장: JDK 17, JDK 21)
+* **Maven 3.6+**
+* **MySQL 8.0+**
+* **Git**
 
-* JDK 17 or JDK 21
-* The latest [Apache Maven](https://maven.apache.org)
+### 데이터베이스 설정
 
-### Apache Tomcat 10
+1. MySQL에 데이터베이스 생성:
+```sql
+CREATE DATABASE north_east_face CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-Run the following command to run the application on Tomcat 10.
+2. 테이블 생성 (`db/schema.sql` 실행):
+```bash
+mysql -u root -p north_east_face < db/schema.sql
+```
+
+3. 데이터베이스 접속 정보 설정:
+   - 파일: `src/main/java/util/DBConnection.java`
+   - 필요시 DB URL, 사용자명, 비밀번호 수정
+
+---
+
+## 로컬 환경 실행
+
+### 1. 프로젝트 클론
+```bash
+git clone https://github.com/NorthEastFace/NORTH-EAST-FACE.git
+cd NORTH-EAST-FACE
+```
+
+### 2. Maven 빌드
+```bash
+mvn clean package -DskipTests
+```
+
+### 3. WAR 파일로 실행 (embedded Tomcat)
+
+**Windows:**
+```bash
+build-and-deploy.bat
+```
+
+**Linux/Mac:**
+```bash
+mvn tomcat7:run
+```
+
+또는 생성된 WAR 파일을 직접 Tomcat에 배포:
+```bash
+# WAR 파일이 target/north-east-face.war 에 생성됨
+# Tomcat webapps 폴더에 복사
+cp target/north-east-face.war $CATALINA_HOME/webapps/
+```
+
+### 4. 애플리케이션 접속
+
+```
+http://localhost:8080/north-east-face
+```
+
+### 5. 테스트 계정
+
+회원가입 후 사용하거나 아래 테스트 계정으로 로그인:
+- 이메일: `test@example.com`
+- 비밀번호: `password123`
+
+---
+
+## EC2 환경 배포
+
+### 전제 조건
+
+* EC2 인스턴스 (Ubuntu 20.04 LTS 권장)
+* Java 11 이상 설치
+* MySQL 8.0 설치
+* Tomcat 10 설치
+
+> **Maven은 설치할 필요 없습니다!** WAR 파일은 로컬에서 생성해서 업로드합니다.
+
+### 배포 단계
+
+#### 1. EC2에 필수 소프트웨어 설치 (Maven 불필요)
 
 ```bash
-mvn clean package cargo:run
+# 패키지 업데이트
+sudo apt update && sudo apt upgrade -y
+
+# Java 설치
+sudo apt install -y openjdk-11-jdk
+java -version
+
+# MySQL 설치
+sudo apt install -y mysql-server
+
+# Tomcat 설치
+cd /tmp
+wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.5/bin/apache-tomcat-10.1.5.tar.gz
+sudo tar -xzf apache-tomcat-10.1.5.tar.gz
+sudo mv apache-tomcat-10.1.5 /opt/tomcat
+sudo chown -R tomcat:tomcat /opt/tomcat
 ```
 
-### Eclipse Jetty 11
-
-The new `jetty-maven-plugin` reorganizes the former `run-fork` goal and provides three modes for running a Jetty server.
-
-* EMBEDDED
-* FORKED
-* EXTERNAL
-
-The default mode is `EMBEDDED`, similar to the simplest `jetty:run` goal in the previous version.
-
-The `FORKED` mode uses a forked thread to run the application.
-
-The `EXTERNAL` mode runs the application on an external Jetty server.
-
-
-This sample project provides configurations for `EMBEDED`  and `EXTERNAL` modes. 
-
-There is a `jetty-embed` profile for `EMBEDED` mode and a `jetty-external` profile for `EXTERNAL` mode.
-
-To run the application in `EMBEDED` mode, run the following command.
+#### 2. MySQL 데이터베이스 설정
 
 ```bash
-mvn clean jetty:run -Pjetty-embed
+# MySQL 접속
+mysql -u root -p
+
+# 데이터베이스 및 사용자 생성
+CREATE DATABASE north_east_face CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'nef_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON north_east_face.* TO 'nef_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+# 테이블 생성
+mysql -u nef_user -p north_east_face < /path/to/db/schema.sql
 ```
 
-To run the application on `EXTERNAL` mode,  firstly download a copy of the latest [Eclipse Jetty 11](https://www.eclipse.org/jetty) and set an environment variable `JETTY_HOME` to the location of the Jetty distribution.
-    
-Then run the following command.
+#### 3. 로컬에서 WAR 파일 빌드 (로컬 컴퓨터에서)
 
 ```bash
-mvn clean jetty:run -Pjetty-external
+# 로컬에서만 Maven이 필요합니다!
+mvn clean package -DskipTests
+
+# WAR 파일이 target/north-east-face.war 에 생성됨
+```
+
+#### 4. WAR 파일을 EC2에 업로드
+
+**SCP를 사용한 업로드:**
+```bash
+# 로컬에서 EC2로 WAR 파일 전송
+scp -i your-key.pem target/north-east-face.war ec2-user@your-ec2-ip:/tmp/
+```
+
+또는 **git으로 클론 후 직접 배포:**
+
+```bash
+# EC2에서
+cd /home/ec2-user
+git clone https://github.com/NorthEastFace/NORTH-EAST-FACE.git
+cd NORTH-EAST-FACE
+
+# 스크립트 실행 (자동으로 모든 과정 처리)
+chmod +x deploy.sh
+./deploy.sh
+```
+
+#### 5. 데이터베이스 연결 설정
+
+`src/main/java/util/DBConnection.java` 수정 (로컬에서):
+```java
+private static final String URL = "jdbc:mysql://localhost:3306/north_east_face?useSSL=false&serverTimezone=UTC";
+private static final String USER = "nef_user";
+private static final String PASSWORD = "your_secure_password";
+```
+
+**그 후 WAR 파일을 다시 빌드해서 EC2에 업로드합니다.**
+
+#### 6. Tomcat 재시작 및 접속
+
+```bash
+# Tomcat 재시작
+sudo systemctl restart tomcat
+
+# 또는 수동 시작/중지
+sudo /opt/tomcat/bin/shutdown.sh
+sudo /opt/tomcat/bin/startup.sh
+
+# 로그 확인
+tail -f /opt/tomcat/logs/catalina.out
+```
+
+접속 확인:
+```
+http://<EC2-IP-주소>:8080/north-east-face
+```
+
+### AWS 보안 그룹 설정
+
+- **포트 22** (SSH): 관리자 IP만
+- **포트 80** (HTTP): 0.0.0.0/0
+- **포트 443** (HTTPS): 0.0.0.0/0 (필요시)
+
+---
+
+## 문제 해결
+
+### 로컬 환경
+
+**포트 충돌**: Tomcat 포트 변경
+```bash
+# catalina.properties에서 포트 설정
+export CATALINA_OPTS="-Dserver.port=9090"
+mvn tomcat7:run
+```
+
+**데이터베이스 연결 오류**: `DBConnection.java`의 접속 정보 확인
+
+### EC2 환경
+
+**Tomcat 로그 확인**:
+```bash
+sudo tail -f /opt/tomcat/logs/catalina.out
+```
+
+**MySQL 권한 오류**:
+```bash
+mysql -u root -p
+GRANT ALL PRIVILEGES ON north_east_face.* TO 'nef_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+**WAR 배포 실패**: Tomcat 권한 확인
+```bash
+sudo chown -R tomcat:tomcat /opt/tomcat/webapps/
+sudo chmod -R 755 /opt/tomcat/webapps/
 ```
 
 
-### Testing
+## 파일 구조
 
-The testing code is written with JUnit and Arquillian.
-
-Run the following command to execute tests against a Tomcat 10 Embedded adapter.
-
-```bash 
-mvn clean verify -Parq-tomcat-embedded
+```
+NORTH-EAST-FACE/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── controller/       # Servlet 컨트롤러
+│   │   │   ├── dao/              # 데이터 접근 계층
+│   │   │   ├── model/            # 데이터 모델
+│   │   │   ├── filter/           # JWT 필터
+│   │   │   ├── servlet/          # 추가 서블릿
+│   │   │   └── util/             # 유틸리티
+│   │   └── webapp/
+│   │       ├── WEB-INF/
+│   │       │   ├── views/        # JSP 페이지
+│   │       │   ├── tags/         # 커스텀 태그
+│   │       │   └── web.xml       # 배포 설명자
+│   │       └── static/           # CSS, JS, 이미지
+│   └── test/                     # 테스트 코드
+├── db/
+│   └── schema.sql               # 데이터베이스 스키마
+├── pom.xml                      # Maven 설정
+├── README.md                    # 이 파일
+├── deploy.sh                    # Linux 자동 배포 스크립트
+└── build-and-deploy.bat         # Windows 빌드 스크립트
 ```
 
-Alternatively, you can just run the following command to execute tests against a Jetty 11 Embedded adapter.
+## 주요 API 엔드포인트
 
-```bash 
-mvn clean verify -Parq-jetty-embedded
-```
+### 인증
+- `POST /login` - 로그인
+- `POST /register` - 회원가입
+- `GET /logout` - 로그아웃
 
-There is another `arq-weld` Maven profile that allows you to run tests on a Weld embedded adapter.
+### 상품
+- `GET /products` - 상품 목록
+- `GET /product-detail?id=1` - 상품 상세
 
-```bash 
-mvn clean verify -Parq-weld
-```
+### 장바구니
+- `GET /cart` - 장바구니 페이지
+- `GET /api/cart` - 장바구니 조회
+- `POST /api/cart` - 장바구니 추가/수정
 
-> [!Note]
->  The `arq-weld` is only used to test CDI components.
+### 결제
+- `GET /checkout` - 결제 페이지
 
+## 라이센스
 
-## Resources
-
-* [How to install CDI in Tomcat?](https://balusc.omnifaces.org/2013/10/how-to-install-cdi-in-tomcat.html)
-* [Happy Jakarta EE 9 with Jersey 3.0.0](http://blog.supol.cz/?p=235)
-* [Apache Tomcat 10 Documentation](https://tomcat.apache.org/tomcat-10.0-doc)
-* [Weld Reference Documentation#Servlet containers (such as Tomcat or Jetty)](https://docs.jboss.org/weld/reference/latest/en-US/html/environments.html#weld-servlet)
-* [Eclipse Jetty: Operations Guide](https://www.eclipse.org/jetty/documentation/jetty-11/operations-guide/index.html)
-* [Eclipse Jetty: Programming Guide](http://www.eclipse.org/jetty/documentation/jetty-11/programming-guide/index.html)
+MIT License - 자유롭게 사용, 수정, 배포 가능
 
   
 
