@@ -19,7 +19,7 @@ public class CartDAO {
     public List<Map<String, Object>> getCartItems(long memberId) throws SQLException {
         List<Map<String, Object>> items = new ArrayList<>();
         String sql = "SELECT c.cart_item_id, c.product_id, c.quantity, p.name, p.price " +
-                     "FROM cart_item c " +
+                     "FROM cart_items c " +
                      "JOIN product p ON c.product_id = p.product_id " +
                      "WHERE c.member_id = ? " +
                      "ORDER BY c.created_at DESC";
@@ -46,8 +46,8 @@ public class CartDAO {
      * 장바구니에 아이템 추가 (존재하면 수량 증가)
      */
     public void addOrUpdateCartItem(long memberId, long productId, int quantity) throws SQLException {
-        String checkSql = "SELECT quantity FROM cart_item WHERE member_id = ? AND product_id = ?";
-        String insertSql = "INSERT INTO cart_item (member_id, product_id, quantity) VALUES (?, ?, ?)";
+        String checkSql = "SELECT quantity FROM cart_items WHERE member_id = ? AND product_id = ?";
+        String insertSql = "INSERT INTO cart_items (member_id, product_id, quantity) VALUES (?, ?, ?)";
         String updateSql = "UPDATE cart_item SET quantity = quantity + ? WHERE member_id = ? AND product_id = ?";
         
         try (Connection conn = DBConnection.getConnection()) {
@@ -82,7 +82,7 @@ public class CartDAO {
      * 특정 장바구니 아이템 삭제
      */
     public void deleteCartItem(long memberId, long cartItemId) throws SQLException {
-        String sql = "DELETE FROM cart_item WHERE cart_item_id = ? AND member_id = ?";
+        String sql = "DELETE FROM cart_items WHERE cart_item_id = ? AND member_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -96,7 +96,7 @@ public class CartDAO {
      * 사용자의 전체 장바구니 비우기
      */
     public void clearCart(long memberId) throws SQLException {
-        String sql = "DELETE FROM cart_item WHERE member_id = ?";
+        String sql = "DELETE FROM cart_items WHERE member_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

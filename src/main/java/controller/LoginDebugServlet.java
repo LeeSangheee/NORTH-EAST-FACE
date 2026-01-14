@@ -92,7 +92,7 @@ public class LoginDebugServlet extends HttpServlet {
                 
                 try (Connection conn = DBConnection.getConnection();
                      PreparedStatement ps = conn.prepareStatement(
-                             "SELECT member_id, username, password_hash FROM member WHERE (username = ? OR email = ?) AND password_hash = ?")) {
+                             "SELECT member_id, username, password_hash FROM members WHERE (username = ? OR email = ?) AND password_hash = ?")) {
                     ps.setString(1, username);
                     ps.setString(2, username);
                     ps.setString(3, passwordHash);
@@ -109,7 +109,7 @@ public class LoginDebugServlet extends HttpServlet {
                             
                             // 해시 일치 여부 확인
                             try (PreparedStatement ps2 = conn.prepareStatement(
-                                    "SELECT member_id, username, password_hash FROM member WHERE username = ? OR email = ?")) {
+                                    "SELECT member_id, username, password_hash FROM members WHERE username = ? OR email = ?")) {
                                 ps2.setString(1, username);
                                 ps2.setString(2, username);
                                 try (ResultSet rs2 = ps2.executeQuery()) {

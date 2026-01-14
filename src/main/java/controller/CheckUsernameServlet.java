@@ -27,7 +27,7 @@ public class CheckUsernameServlet extends HttpServlet {
             return;
         }
 
-        String sql = "SELECT 1 FROM member WHERE username = ? OR email = ? LIMIT 1";
+        String sql = "SELECT 1 FROM members WHERE username = ? OR email = ? LIMIT 1";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);

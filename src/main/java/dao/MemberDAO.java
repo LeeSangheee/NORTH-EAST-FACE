@@ -11,7 +11,7 @@ import util.DBConnection;
 public class MemberDAO {
 
     public Member findById(long memberId) throws SQLException {
-        String sql = "SELECT member_id, username, email, phone FROM member WHERE member_id = ?";
+        String sql = "SELECT member_id, username, email, phone FROM members WHERE member_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

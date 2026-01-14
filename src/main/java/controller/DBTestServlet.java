@@ -56,5 +56,5 @@ public class DBTestServlet extends HttpServlet {
         return value == null || value.isBlank() ? fallback : value;
     }
     
-    private static final String DEFAULT_DB_URL = "jdbc:mysql://nef-dev-db-pri.c30yuwy4q1xc.ap-northeast-2.rds.amazonaws.com:3306/NEFDB?serverTimezone=Asia/Seoul&characterEncoding=UTF-8";
+    private static final String DEFAULT_DB_URL = "jdbc:mysql://nef-dev-db-pri.c30yuwy4q1xc.ap-northeast-2.rds.amazonaws.com:3306/nefdb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8";
 }

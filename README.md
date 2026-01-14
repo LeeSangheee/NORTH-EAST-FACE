@@ -36,12 +36,12 @@ Java 기반 고급 의류/등산용품 이커머스 플랫폼입니다.
 
 1. MySQL에 데이터베이스 생성:
 ```sql
-CREATE DATABASE NEFDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE nefdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 2. 테이블 생성 (`db/schema.sql` 실행):
 ```bash
-mysql -u root -p NEFDB < db/schema.sql
+mysql -u root -p nefdb < db/schema.sql
 ```
 
 3. 데이터베이스 접속 정보 설정:
@@ -137,14 +137,14 @@ sudo chown -R tomcat:tomcat /opt/tomcat
 mysql -u root -p
 
 # 데이터베이스 및 사용자 생성
-CREATE DATABASE NEFDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE nefdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'nef_user'@'localhost' IDENTIFIED BY 'your_secure_password';
-GRANT ALL PRIVILEGES ON NEFDB.* TO 'nef_user'@'localhost';
+GRANT ALL PRIVILEGES ON nefdb.* TO 'nef_user'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 
 # 테이블 생성
-mysql -u nef_user -p NEFDB < /path/to/db/schema.sql
+mysql -u nef_user -p nefdb < /path/to/db/schema.sql
 ```
 
 #### 3. 로컬에서 WAR 파일 빌드 (로컬 컴퓨터에서)
@@ -181,7 +181,7 @@ chmod +x deploy.sh
 
 `src/main/java/util/DBConnection.java` 수정 (로컬에서):
 ```java
-private static final String URL = "jdbc:mysql://localhost:3306/NEFDB?useSSL=false&serverTimezone=UTC";
+private static final String URL = "jdbc:mysql://localhost:3306/nefdb?useSSL=false&serverTimezone=UTC";
 private static final String USER = "nef_user";
 private static final String PASSWORD = "your_secure_password";
 ```
@@ -238,7 +238,7 @@ sudo tail -f /opt/tomcat/logs/catalina.out
 **MySQL 권한 오류**:
 ```bash
 mysql -u root -p
-GRANT ALL PRIVILEGES ON NEFDB.* TO 'nef_user'@'localhost';
+GRANT ALL PRIVILEGES ON nefdb.* TO 'nef_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 

@@ -42,7 +42,7 @@ public class LoginServlet extends HttpServlet {
         }
 
         String passwordHash = hashSha256(password);
-        String sql = "SELECT member_id, username FROM member WHERE email = ? AND password_hash = ?";
+        String sql = "SELECT member_id, username FROM members WHERE email = ? AND password_hash = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

@@ -56,7 +56,7 @@ public class RegisterServlet extends HttpServlet {
         String hash = hashSha256(password);
 
         // 중복 체크: username과 email 각각 확인
-        String checkUsernameSql = "SELECT COUNT(*) FROM member WHERE username = ?";
+        String checkUsernameSql = "SELECT COUNT(*) FROM members WHERE username = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(checkUsernameSql)) {
             ps.setString(1, username);
@@ -73,7 +73,7 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        String checkEmailSql = "SELECT COUNT(*) FROM member WHERE email = ?";
+        String checkEmailSql = "SELECT COUNT(*) FROM members WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(checkEmailSql)) {
             ps.setString(1, email);
@@ -91,7 +91,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         // 가입 처리
-        String sql = "INSERT INTO member (username, password_hash, email, phone) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO members (username, password_hash, email, phone) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
