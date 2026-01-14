@@ -37,21 +37,49 @@ java -version
 echo ""
 echo -e "${YELLOW}[STEP 2/4] Installing Tomcat 9...${NC}"
 
-if [ ! -d "$CATALINA_HOME" ]; then
+# Tomcat 버전 확인 및 필요시 교체
+TOMCAT_VERSION=""
+if [ -x "$CATALINA_HOME/bin/version.sh" ]; then
+    TOMCAT_VERSION=$(sudo "$CATALINA_HOME/bin/version.sh" 2>/dev/null | grep "Server number" | awk '{print $3}')
+fi
+
+# Tomcat 10 이상이면 자동으로 Tomcat 9로 교체
+if [[ "$TOMCAT_VERSION" =~ ^10\. ]] || [[ "$TOMCAT_VERSION" =~ ^11\. ]]; then
+    echo -e "${YELLOW}⚠️  Tomcat $TOMCAT_VERSION detected (uses jakarta.*). Replacing with Tomcat 9 (uses javax.*)...${NC}"
+    
+    # Tomcat 중지
+    if pgrep -f "tomcat" > /dev/null; then
+        sudo "$CATALINA_HOME/bin/shutdown.sh" 2>/dev/null
+        sleep 3
+    fi
+    
+    # 백업 및 제거
+    if [ -d "$CATALINA_HOME" ]; then
+        sudo mv "$CATALINA_HOME" "/opt/tomcat.bak.$(date +%Y%m%d_%H%M%S)"
+    fi
+    
+    # Tomcat 9 설치
+    cd /tmp
+    if [ ! -f "apache-tomcat-9.0.82.tar.gz" ]; then
+        wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+    fi
+    sudo tar -xzf apache-tomcat-9.0.82.tar.gz
+    sudo mv apache-tomcat-9.0.82 /opt/tomcat
+    sudo chown -R $USER:$USER /opt/tomcat
+    sudo chmod +x /opt/tomcat/bin/*.sh
+    echo -e "${GREEN}✓ Tomcat 9 installed (replaced Tomcat $TOMCAT_VERSION)${NC}"
+    
+elif [ ! -d "$CATALINA_HOME" ]; then
     echo "Tomcat not found. Installing Tomcat 9..."
     cd /tmp
     wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
     sudo tar -xzf apache-tomcat-9.0.82.tar.gz
     sudo mv apache-tomcat-9.0.82 /opt/tomcat
-    sudo chown -R tomcat:tomcat /opt/tomcat
+    sudo chown -R $USER:$USER /opt/tomcat
+    sudo chmod +x /opt/tomcat/bin/*.sh
     echo -e "${GREEN}✓ Tomcat 9 installed${NC}"
 else
-    echo -e "${GREEN}✓ Tomcat already installed at: $CATALINA_HOME${NC}"
-    if [ -x "$CATALINA_HOME/bin/version.sh" ]; then
-        echo "Tomcat version:"
-        sudo "$CATALINA_HOME/bin/version.sh" | sed -n '1,3p'
-        echo "(If version is 10+, JSP may fail with javax/jakarta mismatch. Consider reinstalling Tomcat 9.)"
-    fi
+    echo -e "${GREEN}✓ Tomcat $TOMCAT_VERSION already installed${NC}"
 fi
 
 # ============= 3단계: WAR 파일 배포 =============
