@@ -1,11 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="ui" tagdir="/WEB-INF/tags" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>상품 상세 - NORTH EAST FACE</title>
+  <title><c:out value="${product.name}"/> - NORTH EAST FACE</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; color: #222; }
@@ -19,26 +21,10 @@
     .meta { color: #777; font-size: 14px; margin-bottom: 16px; }
     .price { font-size: 22px; font-weight: 700; margin: 8px 0 20px; }
 
-    .opt { margin: 18px 0; }
-    .opt h3 { font-size: 14px; margin: 0 0 10px; color: #444; letter-spacing: .02em; }
-
-    .colors { display: flex; gap: 10px; }
-    .color { width: 36px; height: 36px; border-radius: 4px; border: 1px solid #e0e0e0; cursor: pointer; position: relative; background: #eee; }
-    .color.is-active { outline: 2px solid #111; outline-offset: 2px; }
-
-    .sizes { display: grid; grid-template-columns: repeat(5, minmax(68px, 1fr)); gap: 8px; }
-    .size { border: 1px solid #ddd; border-radius: 4px; padding: 10px 8px; text-align: center; cursor: pointer; font-size: 13px; }
-    .size.is-active { border-color: #111; background: #111; color: #fff; }
-
     /* CTAs: full-width Buy + outlined Cart with wishlist */
     .cta { margin-top: 24px; display: grid; grid-template-columns: 1fr; gap: 10px; }
     .btn { appearance: none; border: none; padding: 0 18px; border-radius: 4px; cursor: pointer; font-weight: 700; height: 56px; }
     .btn.buy { background: #111; color: #fff; width: 100%; }
-
-    .cart-row { display: flex; width: 100%; border: 1px solid #111; border-radius: 4px; overflow: hidden; }
-    .cart-main { flex: 1; background: #fff; color: #111; height: 56px; display: flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; }
-    .wishlist { width: 64px; min-width: 64px; height: 56px; background: #fff; border-left: 1px solid #111; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .wishlist span { font-size: 18px; }
 
     /* Add-to-cart modal */
     .cart-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1200; }
@@ -81,31 +67,42 @@
   <main class="page">
     <div class="detail" id="detailRoot">
       <div class="left">
-        <div class="emoji-frame"><div class="emoji" id="emoji">🧥</div></div>
+        <div class="emoji-frame">
+          <c:choose>
+            <c:when test="${not empty product.imageFileName}">
+              <img src="${product.imageFileName}" 
+                   alt="${product.name}" 
+                   style="width: 100%; height: 100%; object-fit: cover;"
+                   onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'emoji\'>🧥</div>'">
+            </c:when>
+            <c:otherwise>
+              <div class="emoji">🧥</div>
+            </c:otherwise>
+          </c:choose>
+        </div>
       </div>
       <div class="right">
-        <div class="meta" id="sku">SKU -</div>
-        <h1 id="title">상품 상세</h1>
-        <div class="price" id="price">- 원</div>
-
-        <section class="opt">
-          <h3>COLOR</h3>
-          <div class="colors" id="colors"></div>
-        </section>
-
-        <section class="opt">
-          <h3>사이즈</h3>
-          <div class="sizes" id="sizes"></div>
-        </section>
+        <c:if test="${not empty categoryName}">
+          <div class="meta" id="category">
+            <a href="${pageContext.request.contextPath}/products?categoryId=${product.categoryId}" 
+               style="color: #111; text-decoration: none; font-weight: 600;">
+              <c:out value="${categoryName}"/>
+            </a>
+          </div>
+        </c:if>
+        <h1 id="title"><c:out value="${product.name}"/></h1>
+        <div class="price" id="price"><fmt:formatNumber value="${product.price}" pattern="#,##0"/> 원</div>
+        <div class="meta" style="margin-top: 12px;">
+          <c:choose>
+            <c:when test="${product.stockQty <= 0}">품절</c:when>
+            <c:when test="${product.stockQty < 10}">재고 ${product.stockQty}개</c:when>
+            <c:otherwise>재고 있음</c:otherwise>
+          </c:choose>
+        </div>
 
         <div class="cta">
           <button class="btn buy">바로구매</button>
-          <div class="cart-row" role="group" aria-label="장바구니 및 찜">
-            <button class="cart-main" type="button">장바구니</button>
-            <button class="wishlist" type="button" aria-label="위시리스트">
-              <span>♡</span>
-            </button>
-          </div>
+          <button class="btn cart-main" style="width: 100%; background: #fff; color: #111; border: 1px solid #111;">장바구니</button>
         </div>
       </div>
     </div>
@@ -127,43 +124,7 @@
       '8': { name: 'HORIZON HAT', emoji: '🧢', price: '27,300 원', colors: ['#efefef','#111'], sizes: ['S','M','L'] }
     };
 
-    const data = PRODUCTS[productId] || { name: '상품 ' + productId, emoji: '🧥', price: '-', colors: ['#e5e5e5'], sizes: ['FREE'] };
-
-    // 좌측 이미지는 한 장만: 큰 이모지 하나
-    document.getElementById('emoji').textContent = data.emoji;
-
-    // 기본 정보
-    document.getElementById('title').textContent = data.name;
-    document.getElementById('price').textContent = data.price;
-    document.getElementById('sku').textContent = 'SKU ' + ("NJ" + String(productId).padStart(3,'0'));
-
-    // 색상 스와치 생성
-    const $colors = document.getElementById('colors');
-    data.colors.forEach((c, i) => {
-      const d = document.createElement('button');
-      d.type = 'button';
-      d.className = 'color' + (i === 0 ? ' is-active' : '');
-      d.style.background = c;
-      d.addEventListener('click', () => {
-        document.querySelectorAll('.color').forEach(el => el.classList.remove('is-active'));
-        d.classList.add('is-active');
-      });
-      $colors.appendChild(d);
-    });
-
-    // 사이즈 옵션 생성
-    const $sizes = document.getElementById('sizes');
-    data.sizes.forEach((s, i) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'size' + (i === 0 ? ' is-active' : '');
-      b.textContent = s;
-      b.addEventListener('click', () => {
-        document.querySelectorAll('.size').forEach(el => el.classList.remove('is-active'));
-        b.classList.add('is-active');
-      });
-      $sizes.appendChild(b);
-    });
+    const data = PRODUCTS[productId] || { name: '상품 ' + productId, emoji: '🧥', price: '-' };
 
     // ---- Cart via localStorage ----
     const CART_KEY = 'nef_cart';

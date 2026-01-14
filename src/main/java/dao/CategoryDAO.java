@@ -54,4 +54,30 @@ public class CategoryDAO {
         
         return categories;
     }
+    
+    public Category getCategoryById(long categoryId) {
+        String sql = "SELECT category_id, name, display_order, is_active " +
+                     "FROM categories WHERE category_id = ?";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setLong(1, categoryId);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Category(
+                        rs.getLong("category_id"),
+                        rs.getString("name"),
+                        rs.getInt("display_order"),
+                        rs.getBoolean("is_active")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
 }

@@ -1,5 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List" %>
+<%@ page import="dao.ProductDAO" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="ui" tagdir="/WEB-INF/tags" %>
+<%
+    // Get latest 8 products if not already set by servlet
+    if (request.getAttribute("newArrivals") == null) {
+        ProductDAO productDAO = new ProductDAO();
+        List<ProductDAO.Product> newArrivals = productDAO.getLatestProducts(8);
+        request.setAttribute("newArrivals", newArrivals);
+    }
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -42,7 +54,8 @@
         .product-card { width: 100%; }
         .product-card { flex: 0 0 280px; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
         .product-card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
-        .product-image { width: 100%; height: 280px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 6rem; position: relative; }
+        .product-image { width: 100%; height: 280px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
         .product-badge { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
         .badge { background: #000; color: #fff; padding: 4px 8px; font-size: 0.7rem; font-weight: 600; border-radius: 2px; text-transform: uppercase; }
         .product-info { padding: 1.2rem; }
@@ -186,16 +199,22 @@
             // Context path for building servlet URLs
             var CP = '${pageContext.request.contextPath}';
 
+            // Get products from server-side attribute
             const products = [
-                { id: 1, name: "M'S OBIR HYBRID DOWN COAT", emoji: '🧥', discount: 40, price: '314,100 원', badge: 'new' },
-                { id: 2, name: "M'S HIMALAYAN PARKA (RDS)", emoji: '🧥', price: '950,000 원' },
-                { id: 3, name: "W'S EVERLOFT DOWN COAT (RDS)", emoji: '🧥', discount: 20, price: '318,400 원', badge: 'sale' },
-                { id: 4, name: "W'S 2000 NUPTSE JACKET", emoji: '🧥', discount: 20, price: '319,200 원', badge: 'sale' },
-                { id: 5, name: 'BOREALIS BOOTIE', emoji: '🥾', discount: 20, price: '135,200 원', badge: 'sale' },
-                { id: 6, name: 'BOREALIS CLASSIC BACKPACK', emoji: '🎒', price: '149,000 원' },
-                { id: 7, name: 'MONTANA SKI GLOVE', emoji: '🧤', price: '89,000 원', badge: 'new' },
-                { id: 8, name: 'HORIZON HAT', emoji: '🧢', discount: 30, price: '27,300 원' }
+                <c:forEach var="p" items="${newArrivals}" varStatus="status">
+                {
+                    id: ${p.productId},
+                    name: '<c:out value="${p.name}"/>',
+                    image: '<c:out value="${p.imageFileName}"/>',
+                    price: '<fmt:formatNumber value="${p.price}" pattern="#,##0" /> 원'
+                }${!status.last ? ',' : ''}
+                </c:forEach>
             ];
+
+            if (products.length === 0) {
+                track.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">등록된 신상품이 없습니다.</div>';
+                return;
+            }
 
             const CARD_WIDTH = 300;
             const TOTAL = products.length; // 8
@@ -217,16 +236,15 @@
                         a.draggable = false;
                         a.href = CP + '/product-detail?id=' + p.id;
                         
-                        let html = '<div class="product-image">' + p.emoji;
-                        if (p.badge) {
-                            html += '<div class="product-badge"><span class="badge">' + p.badge + '</span></div>';
+                        let html = '<div class="product-image">';
+                        if (p.image) {
+                            html += '<img src="' + p.image + '" alt="' + p.name + '" onerror="this.src=\'' + CP + '/static/images/logo.png\'">';
+                        } else {
+                            html += '<img src="' + CP + '/static/images/logo.png" alt="' + p.name + '">';
                         }
                         html += '</div><div class="product-info">';
                         html += '<div class="product-name">' + p.name + '</div>';
                         html += '<div class="product-price">';
-                        if (p.discount) {
-                            html += '<span class="discount-rate">' + p.discount + '%</span>';
-                        }
                         html += '<span class="sale-price">' + p.price + '</span>';
                         html += '</div></div>';
                         

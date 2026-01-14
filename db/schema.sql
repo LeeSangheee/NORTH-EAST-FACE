@@ -45,7 +45,6 @@ CREATE TABLE IF NOT EXISTS products (
   stock_qty       INT NOT NULL,
   category_id     BIGINT UNSIGNED NULL COMMENT '카테고리 ID',
   options_json    JSON NULL,
-  brand           VARCHAR(128) NOT NULL,
   image_file_name VARCHAR(255) NULL COMMENT '상품 이미지 파일명',
   created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
