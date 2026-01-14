@@ -38,7 +38,7 @@ public class DBTestServlet extends HttpServlet {
             out.println("<h3>DB Connection Test</h3>");
             out.println("<p>Status: <strong>" + escape(status) + "</strong></p>");
             out.println("<p>Details: " + escape(details) + "</p>");
-            out.println("<p>Using URL: " + escape(getEnvOrFallback("DB_URL", "jdbc:mysql://localhost:3306/north_east_face")) + "</p>");
+            out.println("<p>Using URL: " + escape(getEnvOrFallback("DB_URL", DEFAULT_DB_URL)) + "</p>");
             out.println("</body></html>");
         }
     }
@@ -55,4 +55,6 @@ public class DBTestServlet extends HttpServlet {
         String value = System.getenv(key);
         return value == null || value.isBlank() ? fallback : value;
     }
+    
+    private static final String DEFAULT_DB_URL = "jdbc:mysql://nef-dev-db-pri.c30yuwy4q1xc.ap-northeast-2.rds.amazonaws.com:3306/NEFDB?serverTimezone=Asia/Seoul&characterEncoding=UTF-8";
 }

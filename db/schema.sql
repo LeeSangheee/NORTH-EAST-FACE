@@ -1,8 +1,8 @@
 
-CREATE DATABASE IF NOT EXISTS north_east_face
+CREATE DATABASE IF NOT EXISTS NEFDB
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_general_ci;
-USE north_east_face;
+USE NEFDB;
 
 -- Schema for NORTH EAST FACE sample shop
 -- MySQL-compatible DDL with UTF-8 and InnoDB

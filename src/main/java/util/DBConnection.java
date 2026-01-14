@@ -7,9 +7,9 @@ import java.sql.SQLException;
 // Lightweight JDBC helper; overrides via env: DB_URL, DB_USER, DB_PASSWORD
 public final class DBConnection {
     private static final String URL = envOrDefault("DB_URL",
-            "jdbc:mysql://localhost:3306/north_east_face?serverTimezone=Asia/Seoul&characterEncoding=UTF-8");
-    private static final String USER = envOrDefault("DB_USER", "root");
-    private static final String PASSWORD = envOrDefault("DB_PASSWORD", "root");
+            "jdbc:mysql://nef-dev-db-pri.c30yuwy4q1xc.ap-northeast-2.rds.amazonaws.com:3306/NEFDB?serverTimezone=Asia/Seoul&characterEncoding=UTF-8");
+    private static final String USER = envOrDefault("DB_USER", "admin");
+    private static final String PASSWORD = envOrDefault("DB_PASSWORD", "northeastface");
 
     static {
         try {
