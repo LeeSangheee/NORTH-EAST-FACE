@@ -62,14 +62,11 @@
         </a>
         <button class="icon-button" aria-label="Toggle menu">☰</button>
         <nav class="main-nav" aria-label="Primary">
-            <a href="${pageContext.request.contextPath}/products">ACTIVITY</a>
-            <a href="${pageContext.request.contextPath}/products">NEW</a>
-            <a href="${pageContext.request.contextPath}/products">랭킹</a>
-            <a href="${pageContext.request.contextPath}/products">화이트라벨</a>
-            <a href="${pageContext.request.contextPath}/products">남성</a>
-            <a href="${pageContext.request.contextPath}/products">여성</a>
-            <a href="${pageContext.request.contextPath}/products">키즈</a>
-            <a href="${pageContext.request.contextPath}/products">아울렛 ↗</a>
+            <c:forEach var="category" items="${categories}">
+                <a href="${pageContext.request.contextPath}/products?categoryId=${category.categoryId}">
+                    <c:out value="${category.name}"/>
+                </a>
+            </c:forEach>
         </nav>
         <div class="header-spacer"></div>
         <div class="header-right">
