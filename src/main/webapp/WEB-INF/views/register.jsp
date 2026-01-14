@@ -38,7 +38,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        #username {
+        .input-with-button input {
             flex-grow: 1;
         }
         .form-group {
@@ -167,19 +167,22 @@
     </c:if>
     
     <form method="post" action="${pageContext.request.contextPath}/register" onsubmit="return validateForm();">
-        <div class="form-row">
-            <div class="form-group">
-                <label for="username">아이디 (영문/숫자)</label>
-                <div class="input-with-button">
-                <input type="text" id="username" name="username" maxlength="64" 
-                       pattern="[a-zA-Z0-9]+" required value="${param.username}" 
-                       placeholder="영문자와 숫자만 입력해주세요"
-                       onblur="validateUsername();">
-                       <button type="button" class="btn-check" onclick="checkDuplicate(); return false;">중복확인</button>
-                </div>
-                <div id="usernameStatus" class="check-status"></div>
+        <div class="form-group">
+            <label for="email">이메일 (로그인 ID)</label>
+            <div class="input-with-button">
+                <input type="email" id="email" name="email" maxlength="255" required 
+                       value="${param.email}" placeholder="you@example.com" onblur="validateEmail();" style="flex: 1;">
+                <button type="button" class="btn-check" onclick="checkDuplicate(); return false;">중복확인</button>
             </div>
-            
+            <div id="emailStatus" class="check-status"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">이름 (표시명)</label>
+            <input type="text" id="username" name="username" maxlength="64" 
+                   required value="${param.username}"
+                   placeholder="예) 홍길동" onblur="validateUsername();">
+            <div id="usernameStatus" class="check-status"></div>
         </div>
         
         <div class="form-group">
@@ -194,13 +197,6 @@
             <input type="password" id="confirm" name="confirm" minlength="6" required 
                    placeholder="비밀번호를 다시 입력해주세요" onblur="validateConfirm();">
             <div id="confirmStatus" class="check-status"></div>
-        </div>
-        
-        <div class="form-group">
-            <label for="email">이메일</label>
-            <input type="email" id="email" name="email" maxlength="255" required 
-                   value="${param.email}" placeholder="이메일을 입력해주세요" onblur="validateEmail();">
-            <div id="emailStatus" class="check-status"></div>
         </div>
         
         <div class="form-group">
@@ -242,38 +238,31 @@ function validateUsername() {
     if (!username) {
         statusEl.textContent = '';
         statusEl.className = 'check-status';
-        usernameChecked = false;
-        usernameAvailable = false;
         return;
     }
     
-    if (!/^[a-zA-Z0-9]+$/.test(username)) {
-        statusEl.textContent = '✗ 영문자와 숫자만 사용 가능합니다.';
+    if (username.length < 2) {
+        statusEl.textContent = '✗ 이름은 2자 이상 입력해주세요.';
         statusEl.className = 'check-status err';
-        usernameChecked = false;
-        usernameAvailable = false;
-        return;
+    } else {
+        statusEl.textContent = '✓ 사용 가능한 이름입니다.';
+        statusEl.className = 'check-status ok';
     }
-    
-    statusEl.textContent = '중복확인을 진행해주세요.';
-    statusEl.className = 'check-status';
-    usernameChecked = false;
-    usernameAvailable = false;
 }
 
 async function checkDuplicate() {
-    const username = document.getElementById('username').value.trim();
-    const statusEl = document.getElementById('usernameStatus');
+    const email = document.getElementById('email').value.trim();
+    const statusEl = document.getElementById('emailStatus');
     
-    if (!username) {
-        statusEl.textContent = '아이디를 입력해주세요.';
+    if (!email) {
+        statusEl.textContent = '이메일을 입력해주세요.';
         statusEl.className = 'check-status err';
         usernameChecked = false;
         return;
     }
     
-    if (!/^[a-zA-Z0-9]+$/.test(username)) {
-        statusEl.textContent = '✗ 영문자와 숫자만 사용 가능합니다.';
+    if (!email.includes('@') || !email.includes('.')) {
+        statusEl.textContent = '✗ 유효한 이메일을 입력해주세요.';
         statusEl.className = 'check-status err';
         usernameChecked = false;
         usernameAvailable = false;
@@ -281,16 +270,16 @@ async function checkDuplicate() {
     }
     
     try {
-        const resp = await fetch('${pageContext.request.contextPath}/api/check-username?username=' + encodeURIComponent(username));
+        const resp = await fetch('${pageContext.request.contextPath}/api/check-username?username=' + encodeURIComponent(email));
         const data = await resp.json();
         
         if (data.status === 200 && data.message === 'available') {
-            statusEl.textContent = '✓ 사용 가능한 아이디입니다.';
+            statusEl.textContent = '✓ 사용 가능한 이메일입니다.';
             statusEl.className = 'check-status ok';
             usernameChecked = true;
             usernameAvailable = true;
         } else {
-            statusEl.textContent = '✗ 이미 사용 중인 아이디입니다.';
+            statusEl.textContent = '✗ 이미 사용 중인 이메일입니다.';
             statusEl.className = 'check-status err';
             usernameChecked = true;
             usernameAvailable = false;
@@ -348,6 +337,8 @@ function validateEmail() {
     if (!email) {
         statusEl.textContent = '';
         statusEl.className = 'check-status';
+        usernameChecked = false;
+        usernameAvailable = false;
         return;
     }
     
@@ -355,9 +346,11 @@ function validateEmail() {
         statusEl.textContent = '✗ 유효한 이메일을 입력해주세요.';
         statusEl.className = 'check-status err';
     } else {
-        statusEl.textContent = '✓ 올바른 이메일 형식입니다.';
-        statusEl.className = 'check-status ok';
+        statusEl.textContent = '중복확인을 진행해주세요.';
+        statusEl.className = 'check-status';
     }
+    usernameChecked = false;
+    usernameAvailable = false;
 }
 
 function validatePhone() {
@@ -400,37 +393,30 @@ function validateForm() {
     const phone = document.getElementById('phone').value.trim();
     const terms = document.getElementById('terms').checked;
     
-    // 0. 아이디 형식
-    if (!/^[a-zA-Z0-9]+$/.test(username)) {
-        alert('아이디는 영문자와 숫자만 사용 가능합니다.');
+    // 1. 이메일 중복확인 여부
+    if (!usernameAvailable) {
+        alert('이메일 중복확인을 완료해주세요.');
+        return false;
+    }
+    
+    // 2. 이름 길이 체크
+    if (username.length < 2) {
+        alert('이름은 2자 이상 입력해주세요.');
         document.getElementById('username').focus();
         return false;
     }
     
-    // 1. 중복확인 여부
-    if (!usernameAvailable) {
-        alert('아이디 중복확인을 완료해주세요.');
-        return false;
-    }
-    
-    // 2. 비밀번호 일치
+    // 3. 비밀번호 일치
     if (password !== confirm) {
         alert('비밀번호와 확인 비밀번호가 일치하지 않습니다.');
         document.getElementById('confirm').focus();
         return false;
     }
     
-    // 3. 비밀번호 길이
+    // 4. 비밀번호 길이
     if (password.length < 6) {
         alert('비밀번호는 6자 이상이어야 합니다.');
         document.getElementById('password').focus();
-        return false;
-    }
-    
-    // 4. 이메일 유효성 (간단히)
-    if (!email.includes('@')) {
-        alert('유효한 이메일을 입력해주세요.');
-        document.getElementById('email').focus();
         return false;
     }
     

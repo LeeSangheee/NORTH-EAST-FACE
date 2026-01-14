@@ -1,5 +1,11 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="ui" tagdir="/WEB-INF/tags" %>
+<%
+  model.Member member = (model.Member) request.getAttribute("member");
+  String mName = member != null ? member.getUsername() : "";
+  String mEmail = member != null ? member.getEmail() : "";
+  String mPhone = member != null ? member.getPhone() : "";
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -52,40 +58,41 @@
         <h2 class="section-title">배송 정보</h2>
         <div class="form-group">
           <label class="form-label">이름</label>
-          <input type="text" class="form-input" placeholder="이름을 입력하세요" />
+          <input type="text" id="nameInput" class="form-input" placeholder="이름을 입력하세요" value="<%= mName %>" />
         </div>
         
         <div class="form-group">
           <label class="form-label">이메일</label>
-          <input type="email" class="form-input" placeholder="이메일을 입력하세요" />
+          <input type="email" id="emailInput" class="form-input" placeholder="이메일을 입력하세요" value="<%= mEmail %>" />
         </div>
         
         <div class="form-group">
           <label class="form-label">전화번호</label>
-          <input type="tel" class="form-input" placeholder="01012345678" />
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">배송 주소</label>
-          <input type="text" class="form-input" placeholder="도로명 주소" />
+          <input type="tel" id="phoneInput" class="form-input" placeholder="01012345678" value="<%= mPhone %>" />
         </div>
         
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">상세 주소</label>
-            <input type="text" class="form-input" placeholder="상세 주소" />
+            <label class="form-label">우편번호</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="zipInput" class="form-input" placeholder="우편번호" style="flex:1;" readonly />
+              <button type="button" id="zipSearch" class="checkout-btn" style="width:auto; padding:0 12px; font-size:13px; height:40px;">우편번호 찾기</button>
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">우편번호</label>
-            <input type="text" class="form-input" placeholder="우편번호" />
+            <label class="form-label">배송 주소</label>
+            <input type="text" id="addressInput" class="form-input" placeholder="도로명 주소" readonly />
           </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">상세 주소</label>
+          <input type="text" id="detailAddress" class="form-input" placeholder="상세 주소" />
         </div>
         
         <h2 class="section-title" style="margin-top: 24px;">결제 방법</h2>
         <div class="payment-methods">
           <div class="payment-method active" data-method="credit">신용카드</div>
-          <div class="payment-method" data-method="debit">체크카드</div>
-          <div class="payment-method" data-method="bank">계좌이체</div>
         </div>
         
         <div class="form-group">
@@ -127,14 +134,20 @@
     </div>
   </main>
 
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script>
     var KEY = 'nef_cart';
+    var CTX = '${pageContext.request.contextPath}';
+    var IS_LOGGED_IN = <%= Boolean.TRUE.equals(request.getAttribute("isLoggedIn")) %>;
+    var PREFILL_NAME = '<%= mName %>';
+    var PREFILL_EMAIL = '<%= mEmail %>';
+    var PREFILL_PHONE = '<%= mPhone %>';
     
     function currency(n){ 
       return new Intl.NumberFormat('ko-KR').format(n) + ' 원'; 
     }
-    
-    function readCart(){ 
+
+    function readLocalCart(){ 
       try { 
         var raw = localStorage.getItem(KEY); 
         return raw ? JSON.parse(raw) : []; 
@@ -142,9 +155,35 @@
         return []; 
       } 
     }
+
+    function fetchDbCart(){
+      return fetch(CTX + '/api/cart', {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      })
+      .then(function(res){ if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+      .then(function(items){
+        if (!Array.isArray(items)) return [];
+        return items.map(function(it){
+          return {
+            name: it.name,
+            qty: it.quantity,
+            price: it.price
+          };
+        });
+      });
+    }
+
+    function loadCart(){
+      if (IS_LOGGED_IN) {
+        return fetchDbCart().catch(function(){ return readLocalCart(); });
+      }
+      return Promise.resolve(readLocalCart());
+    }
     
-    function renderSummary(){
-      var cart = readCart();
+    function renderSummary(cart){
+      cart = cart || [];
       var html = '';
       var total = 0;
       
@@ -161,22 +200,58 @@
       document.getElementById('totalPrice').textContent = currency(total);
     }
     
-    // 결제 방법 선택
+    // 결제 방법 선택 (신용카드 고정, UI만 유지)
     document.querySelectorAll('.payment-method').forEach(function(btn){
       btn.addEventListener('click', function(){
         document.querySelectorAll('.payment-method').forEach(function(b){ b.classList.remove('active'); });
         btn.classList.add('active');
       });
     });
+
+    // Prefill inputs
+    (function(){
+      var nameEl = document.getElementById('nameInput');
+      var emailEl = document.getElementById('emailInput');
+      var phoneEl = document.getElementById('phoneInput');
+      if (nameEl && !nameEl.value) nameEl.value = PREFILL_NAME;
+      if (emailEl && !emailEl.value) emailEl.value = PREFILL_EMAIL;
+      if (phoneEl && !phoneEl.value) phoneEl.value = PREFILL_PHONE;
+    })();
+
+    // Postcode lookup (Daum API - no key needed)
+    function openPostcode(){
+      new daum.Postcode({
+        oncomplete: function(data){
+          var addr = data.roadAddress || data.jibunAddress || '';
+          var zone = data.zonecode || '';
+          var zipEl = document.getElementById('zipInput');
+          var addrEl = document.getElementById('addressInput');
+          if (zipEl) zipEl.value = zone;
+          if (addrEl) addrEl.value = addr;
+          var detail = document.getElementById('detailAddress');
+          if (detail) detail.focus();
+        }
+      }).open();
+    }
+    var zipBtn = document.getElementById('zipSearch');
+    if (zipBtn) zipBtn.addEventListener('click', openPostcode);
     
     // 결제 버튼
     document.querySelector('.checkout-btn').addEventListener('click', function(){
       alert('테스트 결제 완료! (실제 결제는 진행되지 않습니다)');
+      if (IS_LOGGED_IN) {
+        fetch(CTX + '/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          credentials: 'same-origin',
+          body: 'action=clear'
+        }).catch(function(){});
+      }
       localStorage.removeItem(KEY);
-      window.location.href = '/';
+      window.location.href = CTX + '/';
     });
     
-    renderSummary();
+    loadCart().then(renderSummary).catch(function(){ renderSummary(readLocalCart()); });
   </script>
 </body>
 </html>

@@ -39,6 +39,7 @@
         }
         
         input[type="text"],
+        input[type="email"],
         input[type="password"] {
             padding: 12px;
             font-size: 16px;
@@ -118,10 +119,9 @@
     
     <form method="post" action="${pageContext.request.contextPath}/login" onsubmit="return validateForm();">
         <div class="form-group">
-            <label for="username">아이디 또는 이메일</label>
-            <input type="text" id="username" name="username" maxlength="255" required 
-                   placeholder="아이디 또는 이메일을 입력해주세요" onblur="validateUsername();">
-            <div id="usernameStatus" class="check-status"></div>
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required placeholder="you@example.com">
+            <div id="emailStatus" class="check-status"></div>
         </div>
         
         <div class="form-group">
@@ -142,16 +142,15 @@
 </div>
 
 <script>
-function validateUsername() {
-    const username = document.getElementById('username').value.trim();
-    const statusEl = document.getElementById('usernameStatus');
-    
-    if (!username) {
+function validateEmail() {
+    const email = document.getElementById('email').value.trim();
+    const statusEl = document.getElementById('emailStatus');
+    if (!statusEl) return;
+    if (!email) {
         statusEl.textContent = '';
         statusEl.className = 'check-status';
         return;
     }
-    
     statusEl.textContent = '';
     statusEl.className = 'check-status';
 }
@@ -171,12 +170,12 @@ function validatePassword() {
 }
 
 function validateForm() {
-    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
     
-    if (!username) {
-        alert('아이디를 입력해주세요.');
-        document.getElementById('username').focus();
+    if (!email) {
+        alert('이메일을 입력해주세요.');
+        document.getElementById('email').focus();
         return false;
     }
     

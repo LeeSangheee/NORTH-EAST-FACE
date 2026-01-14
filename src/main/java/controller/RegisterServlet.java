@@ -41,13 +41,6 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        // 아이디 유효성: 영문자, 숫자만
-        if (!username.matches("^[a-zA-Z0-9]+$")) {
-            request.setAttribute("error", "아이디는 영문자와 숫자만 사용 가능합니다.");
-            request.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(request, response);
-            return;
-        }
-
         if (!password.equals(confirm)) {
             request.setAttribute("error", "비밀번호 확인이 일치하지 않습니다.");
             request.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(request, response);

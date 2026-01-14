@@ -167,7 +167,7 @@
 
     // ---- Cart via localStorage ----
     const CART_KEY = 'nef_cart';
-    const IS_LOGGED_IN = <%= (request.getSession(false) != null && request.getSession(false).getAttribute("user") != null) ? "true" : "false" %>;
+    const IS_LOGGED_IN = <%= Boolean.TRUE.equals(request.getAttribute("isLoggedIn")) ? "true" : "false" %>;
 
     function readCart() {
       try {
@@ -248,7 +248,6 @@
             '<a class="btn join" href="' + JOIN_URL + '">회원가입</a>' +
             '<a class="btn login" href="' + LOGIN_URL + '">로그인</a>' +
           '</div>' +
-          '<div class="footer"><a href="#" data-close="1">비회원으로 구매하기</a></div>' +
         '</div>';
       document.body.appendChild(modal);
       modal.addEventListener('click', (e) => {
@@ -355,8 +354,19 @@
         size: getActiveSize(),
         qty: 1
       };
-      addToCart(payload);
-      showToast('바로구매 준비중 (데모): 장바구니에 담음');
+      // 바로구매: 팝업 없이 장바구니에 담고 결제 페이지로 이동
+      const cart = readCart();
+      const key = (p) => [p.id, p.color, p.size].join('|');
+      const targetKey = key(payload);
+      const found = cart.find(p => key(p) === targetKey);
+      if (found) {
+        found.qty += payload.qty;
+      } else {
+        cart.push(payload);
+      }
+      writeCart(cart);
+      if (window.nefUpdateCartBadge) window.nefUpdateCartBadge();
+      window.location.href = '${pageContext.request.contextPath}/checkout';
     });
   </script>
 </body>

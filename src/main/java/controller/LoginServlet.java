@@ -31,24 +31,23 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        String username = trim(request.getParameter("username"));
+        String email = trim(request.getParameter("email"));
         String password = trim(request.getParameter("password"));
 
-        if (isBlank(username) || isBlank(password)) {
+        if (isBlank(email) || isBlank(password)) {
             HttpSession session = request.getSession();
-            session.setAttribute("error", "아이디와 비밀번호를 입력해 주세요.");
+            session.setAttribute("error", "이메일과 비밀번호를 입력해 주세요.");
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
         String passwordHash = hashSha256(password);
-        String sql = "SELECT member_id, username FROM member WHERE (username = ? OR email = ?) AND password_hash = ?";
+        String sql = "SELECT member_id, username FROM member WHERE email = ? AND password_hash = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
-            ps.setString(2, username);
-            ps.setString(3, passwordHash);
+            ps.setString(1, email);
+            ps.setString(2, passwordHash);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     // 로그인 성공
@@ -76,9 +75,9 @@ public class LoginServlet extends HttpServlet {
                     return;
                 } else {
                     // 로그인 실패 - 디버그 정보 추가
-                    System.out.println("[DEBUG] 로그인 실패 - 입력값: username=" + username + ", password hash=" + passwordHash);
+                    System.out.println("[DEBUG] 로그인 실패 - 입력값: email=" + email + ", password hash=" + passwordHash);
                     HttpSession session = request.getSession();
-                    session.setAttribute("error", "아이디 또는 비밀번호가 일치하지 않습니다.");
+                    session.setAttribute("error", "이메일 또는 비밀번호가 일치하지 않습니다.");
                     response.sendRedirect(request.getContextPath() + "/login");
                 }
             }

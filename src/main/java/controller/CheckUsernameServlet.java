@@ -27,12 +27,6 @@ public class CheckUsernameServlet extends HttpServlet {
             return;
         }
 
-        // 아이디 유효성: 영문자, 숫자만
-        if (!username.matches("^[a-zA-Z0-9]+$")) {
-            sendJson(response, 400, "username must contain only letters and numbers");
-            return;
-        }
-
         String sql = "SELECT 1 FROM member WHERE username = ? OR email = ? LIMIT 1";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
