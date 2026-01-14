@@ -20,7 +20,7 @@ Java 기반 고급 의류/등산용품 이커머스 플랫폼입니다.
 * **Authentication**: JWT (JSON Web Token)
 * **Frontend**: HTML5, CSS3, JavaScript
 * **Build**: Maven
-* **Server**: Apache Tomcat 10
+* **Server**: Apache Tomcat 9
 
 
 ## 설치 및 실행
@@ -85,7 +85,7 @@ cp target/north-east-face.war $CATALINA_HOME/webapps/
 ### 4. 애플리케이션 접속
 
 ```
-http://localhost:8080/north-east-face
+http://localhost:8080/
 ```
 
 ### 5. 테스트 계정
@@ -122,11 +122,11 @@ java -version
 # MySQL 설치
 sudo apt install -y mysql-server
 
-# Tomcat 설치
+# Tomcat 9 설치 (javax 기반 앱과 호환)
 cd /tmp
-wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.5/bin/apache-tomcat-10.1.5.tar.gz
-sudo tar -xzf apache-tomcat-10.1.5.tar.gz
-sudo mv apache-tomcat-10.1.5 /opt/tomcat
+wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+sudo tar -xzf apache-tomcat-9.0.82.tar.gz
+sudo mv apache-tomcat-9.0.82 /opt/tomcat
 sudo chown -R tomcat:tomcat /opt/tomcat
 ```
 
@@ -204,7 +204,7 @@ tail -f /opt/tomcat/logs/catalina.out
 
 접속 확인:
 ```
-http://<EC2-IP-주소>:8080/north-east-face
+http://<EC2-IP-주소>:8080/
 ```
 
 ### AWS 보안 그룹 설정

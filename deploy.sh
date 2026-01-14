@@ -35,18 +35,23 @@ java -version
 
 # ============= 2단계: Tomcat 설치 =============
 echo ""
-echo -e "${YELLOW}[STEP 2/4] Installing Tomcat 10...${NC}"
+echo -e "${YELLOW}[STEP 2/4] Installing Tomcat 9...${NC}"
 
 if [ ! -d "$CATALINA_HOME" ]; then
-    echo "Tomcat not found. Installing..."
+    echo "Tomcat not found. Installing Tomcat 9..."
     cd /tmp
-    wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.5/bin/apache-tomcat-10.1.5.tar.gz
-    sudo tar -xzf apache-tomcat-10.1.5.tar.gz
-    sudo mv apache-tomcat-10.1.5 /opt/tomcat
+    wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+    sudo tar -xzf apache-tomcat-9.0.82.tar.gz
+    sudo mv apache-tomcat-9.0.82 /opt/tomcat
     sudo chown -R tomcat:tomcat /opt/tomcat
-    echo -e "${GREEN}✓ Tomcat installed${NC}"
+    echo -e "${GREEN}✓ Tomcat 9 installed${NC}"
 else
     echo -e "${GREEN}✓ Tomcat already installed at: $CATALINA_HOME${NC}"
+    if [ -x "$CATALINA_HOME/bin/version.sh" ]; then
+        echo "Tomcat version:"
+        sudo "$CATALINA_HOME/bin/version.sh" | sed -n '1,3p'
+        echo "(If version is 10+, JSP may fail with javax/jakarta mismatch. Consider reinstalling Tomcat 9.)"
+    fi
 fi
 
 # ============= 3단계: WAR 파일 배포 =============
@@ -96,21 +101,21 @@ fi
 
 echo "Using WAR file: $WAR_FILE"
 
-# 기존 애플리케이션 제거
-if [ -d "$CATALINA_HOME/webapps/$APP_NAME" ]; then
-    echo "Removing existing application directory..."
-    sudo rm -rf "$CATALINA_HOME/webapps/$APP_NAME"
+# 기존 애플리케이션 제거 (컨텍스트를 루트로 배포)
+if [ -d "$CATALINA_HOME/webapps/ROOT" ]; then
+    echo "Removing existing ROOT application directory..."
+    sudo rm -rf "$CATALINA_HOME/webapps/ROOT"
 fi
 
-if [ -f "$CATALINA_HOME/webapps/${WAR_NAME}.war" ]; then
-    echo "Removing existing WAR file..."
-    sudo rm -f "$CATALINA_HOME/webapps/${WAR_NAME}.war"
+if [ -f "$CATALINA_HOME/webapps/ROOT.war" ]; then
+    echo "Removing existing ROOT.war..."
+    sudo rm -f "$CATALINA_HOME/webapps/ROOT.war"
 fi
 
 # WAR 파일 복사
-echo "Copying WAR file to Tomcat..."
-sudo cp "$WAR_FILE" "$CATALINA_HOME/webapps/"
-sudo chown tomcat:tomcat "$CATALINA_HOME/webapps/${WAR_NAME}.war"
+echo "Copying WAR file to Tomcat as ROOT.war (context path = /)..."
+sudo cp "$WAR_FILE" "$CATALINA_HOME/webapps/ROOT.war"
+sudo chown tomcat:tomcat "$CATALINA_HOME/webapps/ROOT.war"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}[ERROR] Failed to copy WAR file!${NC}"
@@ -150,7 +155,7 @@ echo -e "${GREEN}  ✓ Deployment Completed!${NC}"
 echo "============================================"
 echo ""
 echo "📌 Application URL:"
-echo "  http://$(hostname -I | awk '{print $1}'):8080/${APP_NAME}/"
+echo "  http://$(hostname -I | awk '{print $1}'):8080/"
 echo ""
 echo "📌 Useful commands:"
 echo "  View logs:    tail -f $CATALINA_HOME/logs/catalina.out"
