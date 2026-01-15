@@ -238,9 +238,9 @@
                         
                         let html = '<div class="product-image">';
                         if (p.image) {
-                            html += '<img src="' + p.image + '" alt="' + p.name + '" onerror="this.src=\'' + CP + '/static/images/logo.png\'">';
+                            html += '<img src="' + p.image + '" alt="' + p.name + '" onerror="this.src=\'https://d29tuqwuufoa2l.cloudfront.net/logo.png\'">';
                         } else {
-                            html += '<img src="' + CP + '/static/images/logo.png" alt="' + p.name + '">';
+                            html += '<img src="https://d29tuqwuufoa2l.cloudfront.net/logo.png" alt="' + p.name + '">';
                         }
                         html += '</div><div class="product-info">';
                         html += '<div class="product-name">' + p.name + '</div>';

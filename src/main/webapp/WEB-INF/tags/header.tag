@@ -58,7 +58,7 @@
 <header class="global-header">
     <div class="header-inner">
         <a class="logo-link" href="${pageContext.request.contextPath}/">
-            <img src="${pageContext.request.contextPath}/static/images/logo.png" alt="NORTH EAST FACE"/>
+            <img src="https://d29tuqwuufoa2l.cloudfront.net/logo.png" alt="NORTH EAST FACE"/>
         </a>
         <button class="icon-button" aria-label="Toggle menu">☰</button>
         <nav class="main-nav" aria-label="Primary">

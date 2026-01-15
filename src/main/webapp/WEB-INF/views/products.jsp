@@ -193,10 +193,10 @@
                                     <c:when test="${not empty product.imageFileName}">
                                         <img src="${product.imageFileName}" 
                                              alt="${product.name}"
-                                             onerror="this.src='${pageContext.request.contextPath}/static/images/logo.png'">
+                                             onerror="this.src='https://d29tuqwuufoa2l.cloudfront.net/logo.png'">
                                     </c:when>
                                     <c:otherwise>
-                                        <img src="${pageContext.request.contextPath}/static/images/logo.png" alt="${product.name}">
+                                        <img src="https://d29tuqwuufoa2l.cloudfront.net/logo.png" alt="${product.name}">
                                     </c:otherwise>
                                 </c:choose>
                             </div>

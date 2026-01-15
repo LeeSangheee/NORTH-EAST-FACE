@@ -236,12 +236,12 @@
         var line = (it.price || 0) * (it.quantity || 1);
         if (selected[idx]) { selectedTotal += line; selectedCount += (it.quantity || 1); }
         
-        var imageUrl = it.imageFileName || (CTX + '/static/images/logo.png');
+        var imageUrl = it.imageFileName || 'https://d29tuqwuufoa2l.cloudfront.net/logo.png';
         
         html += '' +
           '<div class="item">' +
             '<div class="item-check"><input type="checkbox" class="row-check" data-idx="' + idx + '" ' + (selected[idx] ? 'checked' : '') + '></div>' +
-            '<div class="thumb"><img src="' + imageUrl + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\'' + CTX + '/static/images/logo.png\'"></div>' +
+            '<div class="thumb"><img src="' + imageUrl + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\'https://d29tuqwuufoa2l.cloudfront.net/logo.png\'"></div>' +
             '<div class="info">' +
               '<div class="brand">NORTH EAST FACE</div>' +
               '<div class="name">' + (it.productName || '상품') + '</div>' +
