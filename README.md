@@ -1,128 +1,169 @@
-# NORTH EAST FACE - 이커머스 쇼핑몰
+# 🎒 NORTH EAST FACE - 등산용품 쇼핑몰
 
-Java 기반 고급 의류/등산용품 이커머스 플랫폼입니다.
+**초보자를 위한 설명**: 이것은 인터넷에서 등산용품과 의류를 사고파는 쇼핑몰 웹사이트입니다. 
+회원가입을 하고 물품을 장바구니에 담아서 구매할 수 있는 온라인 스토어예요!
 
-## 주요 기능
+## 🌟 주요 기능
 
-* 회원 관리 (회원가입, 로그인, 이메일 기반 인증)
-* JWT 토큰 기반 인증 시스템
-* 상품 조회 및 상세 정보
-* 장바구니 (로컬스토리지 + DB 동기화)
-* 결제 페이지 (테스트 모드)
-* 위시리스트 (찜)
-* 다음 우편번호 API 통합
-* 반응형 웹 디자인
+* 👤 **회원 관리** - 회원가입, 로그인하기
+* 🔐 **안전한 로그인** - 해킹 방지 기술 사용
+* 🎒 **상품 보기** - 등산용품 상세 정보 확인
+* 🛒 **장바구니** - 물품을 담아놨다가 나중에 구매
+* 💳 **결제하기** - 상품 구매하기
+* ❤️ **찜하기** - 좋아하는 상품 저장
+* 📍 **주소 검색** - 배송 주소 쉽게 입력
+* 📱 **모바일 지원** - 핸드폰에서도 잘 보임
 
-## 기술 스택
+## 🛠️ 사용한 기술 (개발자용)
 
-* **Backend**: Java 11+, Servlet 5.0, JSP
-* **Database**: MySQL
-* **Authentication**: JWT (JSON Web Token)
-* **Frontend**: HTML5, CSS3, JavaScript
-* **Build**: Maven
-* **Server**: Apache Tomcat 9
+* **백엔드**: Java 11+, Servlet, JSP
+* **데이터베이스**: MySQL
+* **보안**: JWT 토큰 인증
+* **프론트엔드**: HTML, CSS, JavaScript
+* **빌드 도구**: Maven
+* **서버**: Apache Tomcat
 
 
-## 설치 및 실행
+## 💻 설치 방법
 
-### 필수 요구사항
+### 준비물 (미리 설치해야 할 것들)
 
-* **JDK 11 이상** (권장: JDK 17, JDK 21)
-* **Maven 3.6+**
-* **MySQL 8.0+**
-* **Git**
+* **Java** - 프로그래밍 언어 (버전 11 이상, 21 권장)
+* **Maven** - 프로젝트를 빌드하는 도구
+* **MySQL** - 고객 정보, 상품 정보를 저장하는 데이터베이스
+* **Git** - 코드를 받아오는 도구
 
-### 데이터베이스 설정
+### 1️⃣ 데이터베이스 준비하기
 
-1. MySQL에 데이터베이스 생성:
+먼저 MySQL을 켜고 아래 명령어를 입력해서 데이터베이스를 만들어요:
+
 ```sql
 CREATE DATABASE nefdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-2. 테이블 생성 (`db/schema.sql` 실행):
+그 다음 데이터베이스 테이블을 만들어요. 명령어 창에서 이렇게 입력하세요:
+
 ```bash
 mysql -u root -p nefdb < db/schema.sql
 ```
 
-3. 데이터베이스 접속 정보 설정:
-   - 파일: `src/main/java/util/DBConnection.java`
-   - 필요시 DB URL, 사용자명, 비밀번호 수정
+### 2️⃣ 코드 받아오기
 
----
+명령어 창을 열고 이 명령어를 입력하세요:
 
-## 로컬 환경 실행
-
-### 1. 프로젝트 클론
 ```bash
 git clone https://github.com/NorthEastFace/NORTH-EAST-FACE.git
 cd NORTH-EAST-FACE
 ```
 
-### 2. Maven 빌드
-```bash
-mvn clean package -DskipTests
+### 3️⃣ 데이터베이스 연결 설정
+
+이 파일을 열어요: `src/main/java/util/DBConnection.java`
+
+아래 부분에 자신의 데이터베이스 정보를 입력하세요:
+```java
+private static final String URL = "jdbc:mysql://localhost:3306/nefdb?useSSL=false&serverTimezone=UTC";
+private static final String USER = "root";  // 여기에 MySQL 사용자명 입력
+private static final String PASSWORD = "비밀번호";  // 여기에 MySQL 비밀번호 입력
 ```
 
-### 3. WAR 파일로 실행 (embedded Tomcat)
+---
 
-**Windows:**
+## ⚡ 빠르게 시작하기 (자동 배포)
+
+### 🪟 Windows 사용자
+
+명령어 창을 열고 프로젝트 폴더에서 이 명령어를 실행하세요:
+
 ```bash
-build-and-deploy.bat
+deploy.bat
 ```
 
-**Linux/Mac:**
-```bash
-mvn tomcat7:run
-```
+이 명령어가 하는 일:
+- ✅ 프로젝트를 빌드
+- ✅ 데이터베이스를 준비
+- ✅ 웹사이트를 자동으로 실행
+- ✅ 웹브라우저를 열어줌
 
-또는 생성된 WAR 파일을 직접 Tomcat에 배포:
-```bash
-# WAR 파일이 target/north-east-face.war 에 생성됨
-# Tomcat webapps 폴더에 복사
-cp target/north-east-face.war $CATALINA_HOME/webapps/
-```
-
-### 4. 애플리케이션 접속
-
+**완료 후 자동으로 이 주소가 열려요:**
 ```
 http://localhost:8080/
 ```
 
-### 5. 테스트 계정
+### 🐧 Linux / Mac 사용자
 
-회원가입 후 사용하거나 아래 테스트 계정으로 로그인:
-- 이메일: `test@example.com`
-- 비밀번호: `password123`
+터미널을 열고 프로젝트 폴더에서 이 명령어를 실행하세요:
+
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+이 명령어도 Windows와 같은 방식으로 모든 과정을 자동으로 처리해요!
+
+**완료 후 이 주소로 접속하세요:**
+```
+http://localhost:8080/
+```
 
 ---
 
-## EC2 환경 배포
+## 📚 수동으로 단계별 실행하기
 
-### 전제 조건
+편집기나 개발 도구를 사용하는 개발자들은 이 방법을 사용하세요:
 
-* EC2 인스턴스 (Ubuntu 20.04 LTS 권장)
-* Java 11 이상 설치
-* MySQL 8.0 설치
-* Tomcat 10 설치
-
-> **Maven은 설치할 필요 없습니다!** WAR 파일은 로컬에서 생성해서 업로드합니다.
-
-### 배포 단계
-
-#### 1. EC2에 필수 소프트웨어 설치 (Maven 불필요)
+### Step 1: 프로젝트 빌드
 
 ```bash
-# 패키지 업데이트
-sudo apt update && sudo apt upgrade -y
+mvn clean package -DskipTests
+```
 
-# Java 설치
+### Step 2: 서버 실행
+
+```bash
+mvn tomcat7:run
+```
+
+그러면 웹사이트가 `http://localhost:8080/` 에서 실행되어요!
+
+### 테스트 계정
+
+로그인해서 테스트하고 싶다면 이 정보를 사용하세요:
+- 이메일: `t@gmail.com`
+- 비밀번호: `testtest`
+
+아니면 회원가입을 해서 새로운 계정을 만들어도 돼요!
+
+---
+
+## 🚀 클라우드(AWS)에 배포하기
+
+> 💡 **초보자 팁**: 이 부분은 개발자가 인터넷에 있는 서버에 웹사이트를 올릴 때만 필요해요!
+
+### 준비 단계
+
+EC2 인스턴스(우분투 20.04 LTS 권장)가 필요합니다.
+
+### EC2에 필수 프로그램 설치
+
+**Step 1: 업데이트**
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+**Step 2: Java 설치**
+```bash
 sudo apt install -y openjdk-11-jdk
 java -version
+```
 
-# MySQL 설치
+**Step 3: MySQL 설치**
+```bash
 sudo apt install -y mysql-server
+```
 
-# Tomcat 9 설치 (javax 기반 앱과 호환)
+**Step 4: Tomcat 설치**
+```bash
 cd /tmp
 wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
 sudo tar -xzf apache-tomcat-9.0.82.tar.gz
@@ -130,175 +171,199 @@ sudo mv apache-tomcat-9.0.82 /opt/tomcat
 sudo chown -R tomcat:tomcat /opt/tomcat
 ```
 
-#### 2. MySQL 데이터베이스 설정
+### EC2에 MySQL 데이터베이스 만들기
 
 ```bash
-# MySQL 접속
 mysql -u root -p
+```
 
-# 데이터베이스 및 사용자 생성
+그 다음 이 명령어들을 입력하세요:
+
+```sql
 CREATE DATABASE nefdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'nef_user'@'localhost' IDENTIFIED BY 'your_secure_password';
 GRANT ALL PRIVILEGES ON nefdb.* TO 'nef_user'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 
-# 테이블 생성
 mysql -u nef_user -p nefdb < /path/to/db/schema.sql
 ```
 
-#### 3. 로컬에서 WAR 파일 빌드 (로컬 컴퓨터에서)
+### 로컬 컴퓨터에서 배포 파일 만들기
 
+**Windows:**
 ```bash
-# 로컬에서만 Maven이 필요합니다!
-mvn clean package -DskipTests
-
-# WAR 파일이 target/north-east-face.war 에 생성됨
+deploy.bat
 ```
 
-#### 4. WAR 파일을 EC2에 업로드
-
-**SCP를 사용한 업로드:**
+**Linux/Mac:**
 ```bash
-# 로컬에서 EC2로 WAR 파일 전송
-scp -i your-key.pem target/north-east-face.war ec2-user@your-ec2-ip:/tmp/
-```
-
-또는 **git으로 클론 후 직접 배포:**
-
-```bash
-# EC2에서
-cd /home/ec2-user
-git clone https://github.com/NorthEastFace/NORTH-EAST-FACE.git
-cd NORTH-EAST-FACE
-
-# 스크립트 실행 (자동으로 모든 과정 처리)
 chmod +x deploy.sh
 ./deploy.sh
 ```
 
-#### 5. 데이터베이스 연결 설정
+이 명령어가 자동으로 `target/north-east-face.war` 파일을 만들어줄 거예요.
 
-`src/main/java/util/DBConnection.java` 수정 (로컬에서):
-```java
-private static final String URL = "jdbc:mysql://localhost:3306/nefdb?useSSL=false&serverTimezone=UTC";
-private static final String USER = "nef_user";
-private static final String PASSWORD = "your_secure_password";
-```
-
-**그 후 WAR 파일을 다시 빌드해서 EC2에 업로드합니다.**
-
-#### 6. Tomcat 재시작 및 접속
+### EC2에 배포 파일 옮기기
 
 ```bash
-# Tomcat 재시작
+# 로컬에서 EC2로 WAR 파일 전송
+scp -i your-key.pem target/north-east-face.war ec2-user@your-ec2-ip:/tmp/
+
+# EC2에 들어가서
+ssh -i your-key.pem ec2-user@your-ec2-ip
+cp /tmp/north-east-face.war /opt/tomcat/webapps/
+```
+
+### Tomcat 재시작
+
+```bash
 sudo systemctl restart tomcat
-
-# 또는 수동 시작/중지
-sudo /opt/tomcat/bin/shutdown.sh
-sudo /opt/tomcat/bin/startup.sh
-
-# 로그 확인
-tail -f /opt/tomcat/logs/catalina.out
 ```
 
-접속 확인:
+그러면 웹사이트가 실행될 거예요!
 ```
-http://<EC2-IP-주소>:8080/
+http://<EC2-주소>:8080/
 ```
 
-### AWS 보안 그룹 설정
+### AWS 보안 설정
 
+방화벽(보안 그룹)에서 이 포트들을 열어야 해요:
 - **포트 22** (SSH): 관리자 IP만
-- **포트 80** (HTTP): 0.0.0.0/0
-- **포트 443** (HTTPS): 0.0.0.0/0 (필요시)
+- **포트 80** (HTTP): 모두 가능
+- **포트 443** (HTTPS): 모두 가능
 
 ---
 
-## 문제 해결
+## 🆘 문제 해결
 
-### 로컬 환경
+### 로컬에서 문제가 발생했을 때
 
-**포트 충돌**: Tomcat 포트 변경
+**❓ 문제: 포트 8080이 이미 사용 중입니다**
 ```bash
-# catalina.properties에서 포트 설정
-export CATALINA_OPTS="-Dserver.port=9090"
+# 다른 포트를 사용하세요
+set CATALINA_OPTS=-Dserver.port=9090
 mvn tomcat7:run
 ```
 
-**데이터베이스 연결 오류**: `DBConnection.java`의 접속 정보 확인
+**❓ 문제: 데이터베이스에 연결할 수 없습니다**
+- [src/main/java/util/DBConnection.java](src/main/java/util/DBConnection.java) 파일을 열어서 사용자명과 비밀번호 확인
+- MySQL이 실행 중인지 확인
 
-### EC2 환경
-
-**Tomcat 로그 확인**:
+**❓ 문제: 빌드가 실패했습니다**
 ```bash
+# 캐시를 지우고 다시 빌드
+mvn clean
+mvn package -DskipTests
+```
+
+### EC2에서 문제가 발생했을 때
+
+**❓ 문제: Tomcat이 실행되지 않습니다**
+```bash
+# 로그를 확인하세요
 sudo tail -f /opt/tomcat/logs/catalina.out
 ```
 
-**MySQL 권한 오류**:
+**❓ 문제: MySQL 권한 오류**
 ```bash
 mysql -u root -p
 GRANT ALL PRIVILEGES ON nefdb.* TO 'nef_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-**WAR 배포 실패**: Tomcat 권한 확인
+**❓ 문제: WAR 파일 배포가 실패했습니다**
 ```bash
+# Tomcat의 권한을 확인하세요
 sudo chown -R tomcat:tomcat /opt/tomcat/webapps/
 sudo chmod -R 755 /opt/tomcat/webapps/
 ```
 
+---
 
-## 파일 구조
+## 📁 파일 구조
+
+이 프로젝트의 주요 폴더들을 설명해요:
 
 ```
 NORTH-EAST-FACE/
 ├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   ├── controller/       # Servlet 컨트롤러
-│   │   │   ├── dao/              # 데이터 접근 계층
-│   │   │   ├── model/            # 데이터 모델
-│   │   │   ├── filter/           # JWT 필터
-│   │   │   ├── servlet/          # 추가 서블릿
-│   │   │   └── util/             # 유틸리티
-│   │   └── webapp/
-│   │       ├── WEB-INF/
-│   │       │   ├── views/        # JSP 페이지
-│   │       │   ├── tags/         # 커스텀 태그
-│   │       │   └── web.xml       # 배포 설명자
-│   │       └── static/           # CSS, JS, 이미지
-│   └── test/                     # 테스트 코드
+│   └── main/
+│       ├── java/
+│       │   ├── controller/          ← 웹 요청을 받는 부분
+│       │   ├── dao/                 ← 데이터베이스에서 데이터를 가져오는 부분
+│       │   ├── model/               ← 상품, 회원 정보 등 데이터를 저장하는 부분
+│       │   ├── filter/              ← 로그인 확인하는 부분
+│       │   ├── servlet/             ← 웹 요청을 처리하는 추가 부분
+│       │   └── util/                ← 데이터베이스 연결 등 도구
+│       └── webapp/
+│           ├── *.jsp                ← 웹사이트 화면 (HTML)
+│           ├── WEB-INF/
+│           │   ├── web.xml          ← 웹사이트 설정
+│           │   └── views/           ← JSP 페이지들
+│           └── static/              ← 이미지, CSS, JavaScript
 ├── db/
-│   └── schema.sql               # 데이터베이스 스키마
-├── pom.xml                      # Maven 설정
-├── README.md                    # 이 파일
-├── deploy.sh                    # Linux 자동 배포 스크립트
-└── build-and-deploy.bat         # Windows 빌드 스크립트
+│   └── schema.sql                   ← 데이터베이스 구조
+├── pom.xml                          ← 필요한 라이브러리 정의
+├── deploy.bat                       ← Windows 자동 배포 (이것만 실행!)
+├── deploy.sh                        ← Linux 자동 배포 (이것만 실행!)
+└── README.md                        ← 이 파일
 ```
 
-## 주요 API 엔드포인트
+---
 
-### 인증
+## 🔑 API 엔드포인트 (개발자용)
+
+**로그인/회원가입:**
 - `POST /login` - 로그인
 - `POST /register` - 회원가입
 - `GET /logout` - 로그아웃
 
-### 상품
-- `GET /products` - 상품 목록
-- `GET /product-detail?id=1` - 상품 상세
+**상품 조회:**
+- `GET /products` - 상품 목록 보기
+- `GET /product-detail?id=1` - 상품 상세 정보
 
-### 장바구니
+**장바구니:**
 - `GET /cart` - 장바구니 페이지
-- `GET /api/cart` - 장바구니 조회
-- `POST /api/cart` - 장바구니 추가/수정
+- `POST /api/cart` - 장바구니에 물품 추가
 
-### 결제
+**결제:**
 - `GET /checkout` - 결제 페이지
 
-## 라이센스
+---
 
-MIT License - 자유롭게 사용, 수정, 배포 가능
+## 📜 라이선스
 
-  
+MIT License - 자유롭게 사용, 수정, 배포 가능합니다!
+
+---
+
+## ❓ 자주 묻는 질문
+
+**Q: deploy.bat와 deploy.sh의 차이점이 뭔가요?**
+- A: Windows와 Linux에서 실행하는 방식이 달라서 따로 만들었어요. 같은 역할을 합니다!
+  - 🪟 Windows → `deploy.bat` 실행
+  - 🐧 Linux/Mac → `./deploy.sh` 실행
+
+**Q: 처음부터 다시 시작하려면?**
+- A: 이 명령어로 모든 빌드 파일을 삭제한 후 다시 시작하세요
+  ```bash
+  mvn clean
+  ```
+
+**Q: 회원가입은 어디서?**
+- A: 웹사이트를 열면 로그인 페이지가 나와요. 거기서 회원가입 버튼을 눌러서 새로운 계정을 만들 수 있습니다!
+
+---
+
+## 💬 도움말
+
+문제가 생기거나 질문이 있으시면:
+1. 위의 "🆘 문제 해결" 섹션을 확인해보세요
+2. 로그 파일을 읽어보세요 (명령어 창에 빨간 글씨로 오류가 나옵니다)
+3. 개발자에게 문의하세요!
+
+---
+
+**행운을 빕니다! 이제 시작해보세요! 🚀**  
 
