@@ -56,7 +56,7 @@ if not exist "target\north-east-face.war" (
 echo [SUCCESS] WAR file built: target\north-east-face.war
 echo.
 
-set TOMCAT_WEBAPPS=C:\수업자료\apache-tomcat-9.0.113\webapps
+set TOMCAT_WEBAPPS=C:\class-materials\apache-tomcat-9.0.113\webapps
 set WAR_NAME=north-east-face.war
 
 echo [3/3] Deploying to Tomcat...
